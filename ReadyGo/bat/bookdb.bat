@@ -1,0 +1,1 @@
+php ../index.php test bookdb 1 gbk > log/bookdb.bat.log
