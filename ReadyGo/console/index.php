@@ -36,6 +36,9 @@ define('DATAS_PATH', ROOT_PATH.DATAS_FOLDER.'/');
 define('COOKIES_FOLDER','cookies'); #目录名
 define('COOKIES_PATH', DATAS_PATH.COOKIES_FOLDER.'/');
 
+define('CACHES_FOLDER','caches'); #目录名
+define('CACHES_PATH', DATAS_PATH.CACHES_FOLDER.'/');
+
 define('APPLICATION_FOLDER','executor'); #目录名
 define('APP_PATH', ROOT_PATH.APPLICATION_FOLDER.'/');
 
