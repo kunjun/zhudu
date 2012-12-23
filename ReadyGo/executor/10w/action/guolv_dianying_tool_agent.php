@@ -37,21 +37,25 @@ class guolv_dianying_tool_agent
         $this->aParameter['end'] = isset($this->aParameter['end']) ? $this->aParameter['end'] : '';
         ####################################################
         $aArgv = $GLOBALS['argv'];
-        $tags = $this->gaTools['mysqldb']->find("SELECT * FROM tag");
-        if (!empty($tags)) {
-            foreach ($tags as $v) {
-                $tmp = $this->gaTools['mysqldb']->find("SELECT * FROM u17 WHERE tag LIKE '%".$v['name']."%'");
-                $v['obj_total'] = count($tmp);
-//                 dump($v);
-                $this->gaTools['mysqldb']->update('tag',$v);
+        $bads = $this->gaTools['mysqldb']->find("select count(*) c,id id,imdb_id,douban_id,title,aka_cn from movie group by imdb_id having c>1 ORDER BY `c` DESC");
+//         dump($bads[0]);
+//         die;
+        if (!empty($bads)) {
+            foreach ($bads as $v) {
+                $tmp = $this->gaTools['mysqldb']->find("SELECT * FROM movie WHERE imdb_id='".$v['imdb_id']."'");
+//                 dump($tmp[0]);
                 if (!empty($tmp)) {
                     foreach ($tmp as $v_v) {
-                        $row = array();
-                        $row['tag_id'] = $v['id'];
-                        $row['obj_id'] = $v_v['id'];
+                        $row = $v_v;
+                        $row['mid'] = $row['id'];
+                        unset($row['id']);
                         $this->save($row);
+                        show_msg($row['title']."==".$row['aka_cn']."--------------ok!!!<br />\r\n");
 //                         die;
                     }
+                    $this->gaTools['mysqldb']->remove("movie", $v['imdb_id'],"imdb_id");
+                    show_msg("---------------------------------------------------------------ok!!!<br />\r\n");
+                    show_msg($v['imdb_id']."已删除!!!<br />\r\n");
                 }
             }
         }
@@ -64,13 +68,13 @@ class guolv_dianying_tool_agent
     {
 //         dump($row);
         $this->gaTools['mysqldb']->escape_row($row);
-        $aTmp = $this->gaTools['mysqldb']->get('SELECT * FROM dongman_tag_relations WHERE tag_id=' . $row['tag_id'] . ' AND obj_id='.$row['obj_id']);
+        $aTmp = $this->gaTools['mysqldb']->get('SELECT * FROM movie_bads WHERE mid=' . $row['mid'] . '');
 //         dump($aTmp);
         if (!$aTmp) {
 //             $sql = "insert into `dongman_tag_relations` set tag_id=" . $row['tag_id'] . ", obj_id=".$row['obj_id'];
 //             echo $sql;
 //             $this->gaTools['mysqldb']->query($sql);
-            $this->gaTools['mysqldb']->save('dongman_tag_relations',$row);
+            $this->gaTools['mysqldb']->save('movie_bads',$row);
 //             dump($row);
         }
     }
