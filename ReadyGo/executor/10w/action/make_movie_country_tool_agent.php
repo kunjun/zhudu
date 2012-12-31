@@ -1,4 +1,4 @@
-<?php  if ( ! defined('ROOT_PATH')) exit('·Ç·¨·ÃÎÊ£¡£¡£¡');
+<?php  if ( ! defined('ROOT_PATH')) exit('éžæ³•è®¿é—®ï¼ï¼ï¼');
 /********************************************************
  Author: NIGG
 Version: 1
@@ -21,7 +21,7 @@ class make_movie_country_tool_agent
         global $gaTools;
         $this->gaTools = $gaTools;
         $this->set_config();
-        //³ö´í´¦ÀíÐèÒªµÄ²ÎÊý
+        //å‡ºé”™å¤„ç†éœ€è¦çš„å‚æ•°
         $this->aaGatherHandleError['error_template']['con'] = $this->aConfig['error_template']['con'];
         $this->aaGatherHandleError['error_template']['search_replace'] = $this->aConfig['error_template']['search_replace'];
         $this->aaGatherHandleError['log_email'] = $this->gaTools['log_email'];
@@ -101,8 +101,8 @@ class make_movie_country_tool_agent
     }
     private function set_config()
     {
-        #²É¼¯³ö´íÐÅÏ¢Ä£°å
-        $this->aConfig['error_template']['con'] = '²É¼¯¡°@sName¡±¡°@sGoUrl¡±³ö´í£¬ÔÚ½Å±¾£º¡°@sCfile¡±£¬µÄµÚ¡°@sCline¡±ÐÐ¸½½ü';
+        #é‡‡é›†å‡ºé”™ä¿¡æ¯æ¨¡æ¿
+        $this->aConfig['error_template']['con'] = 'é‡‡é›†â€œ@sNameâ€â€œ@sGoUrlâ€å‡ºé”™ï¼Œåœ¨è„šæœ¬ï¼šâ€œ@sCfileâ€ï¼Œçš„ç¬¬â€œ@sClineâ€è¡Œé™„è¿‘';
         $this->aConfig['error_template']['search_replace'] = array('@sName','@sGoUrl','@sCfile','@sCline');
         
         $this->aConfig['html_charset'] = 'gbk';
