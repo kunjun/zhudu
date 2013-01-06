@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+    <html lang="zh-CN" class="ua-windows ua-ie7">
+    
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <title>豆瓣电影标签: 2012 美国</title>
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="Sun, 6 Mar 2005 01:00:00 GMT">
+    <script type="text/javascript">var _head_start=new Date();</script>
+    <script src="http://img3.douban.com/js/packed_jquery.min6301986802.js"></script><script src="http://img3.douban.com/js/packed_douban6696316725.js"></script><script src="http://img3.douban.com/js/ui/packed_dialog8321689615.js"></script><link href="http://img3.douban.com/css/movie/packed__init_9102341.css" rel="stylesheet" type="text/css"><link href="http://img3.douban.com/css/ui/packed_dialog4563741467.css" rel="stylesheet" type="text/css">
+        <script type="text/javascript" src="http://img3.douban.com/js/packed_hashchange5131997993.js">
+        </script>
+        <script type="text/javascript">/*<![CDATA[*/
+    $(function () {
+        function update_tags(current) {
+            html = $.map(current, function(o) {return '<span class="tags-name">' + o + '</span><sup class="tags-del"></sup> '}).join('<span class="tags-add">+</span>');
+            $('h1').html('<span class="name">电影标签：</span>' + html);
+        };
+
+        function get_current_tags() {
+            var r = [];
+            $('.tags-name').each(function() {r.push($(this).text())});
+            return r;
+        };
+
+        function get_current_sort_type() {
+            url = location.href;
+            array = url.split("?")
+            if (array.length == 1) {
+                return "";
+            }
+            query = array[1];
+            arr = query.split("&");
+            for (var i = 0; i < arr.length; i++) {
+                arr2 = arr[i].split('=');
+                if (arr2[0] == "type") {
+                    if (arr2.length == 1) {
+                        return "";
+                    }
+                    return arr2[1];
+                }
+            }
+            return "";
+        };
+
+        function update_subject_list(current, sort_type) {
+            $('#subject_list').html('<span class="pl">载入中，请稍候...</span>');
+            $('#subject_list').load_withck('/j/tag/j_subject_list', {tags:current.join(' '), type:sort_type}, function() {});
+        };
+
+        function update_related_tags_and_subject(current, sort_type) {
+            update_related_tags(current, sort_type);
+            // update_subject_list(current, sort_type);
+        };
+
+        function update_related_tags(current, sort_type) {
+            $('#related_tags').load_withck('/j/tag/j_related_tag', {tags:current.join(' '), type:sort_type}, function() {
+                $('.more').toggle(
+                    function () {
+                        $('.tags-hide').css('display', 'inline');
+                        $(this).text('收起▲');
+                    },
+                    function () {
+                        $('.tags-hide').hide();
+                        $(this).text('更多▼');
+                    }
+                );
+                $('.tags-del').click(function () {
+                    if($(this).prev().prev().text() == '+') {
+                        $(this).prev().prev().remove();
+                    } else if ($(this).next().text() == '+') {
+                        $(this).next().remove();
+                    }
+                    $(this).prev().remove().end().remove();
+                    current = get_current_tags();
+                    if (current.length == 0){
+                        document.location.href = '/tag/';
+                    } else {
+                        //setHash(current.join(' '));
+                        //location.href = '/tag/' + (location.href).split('#')[1] + '?type=' + sort_type;
+                        sort_type = get_current_sort_type();
+                        location.href = '/tag/' + current.join(' ') + '?type=' + sort_type;
+                    }
+                });
+                $('.add-tag').click(function () {
+                    current = get_current_tags();
+                    current.push($(this).text());
+                    update_tags(current);
+                    //setHash(current.join(' '));
+                    //location.href = '/tag/' + (location.href).split('#')[1] + '?type=' + sort_type;
+                    sort_type = get_current_sort_type();
+                    location.href = '/tag/' + current.join(' ') + '?type=' + sort_type;
+                });
+                $('.tagsInput').keypress(function (e) {
+                    if (e.which == 13) {
+                        current = get_current_tags();
+                        current.push($(this).val());
+                        update_tags(current);
+                        sort_type = get_current_sort_type();
+                        //setHash(current.join(' '));
+                        //location.href = '/tag/' + (location.href).split('#')[1] + '?type=' + sort_type;
+                        location.href = '/tag/' + current.join(' ') + '?type=' + sort_type;
+                    }
+                });
+                checkInput($('.tagsInput'));
+            });
+        };
+
+        current = get_current_tags();
+        sort_type = get_current_sort_type();
+        update_related_tags_and_subject(current, sort_type);
+
+        function checkInput (o) {
+            if (!o.val() || o.val() == o.attr('title')) {
+                o.addClass('greyinput');
+                o.val(o.attr('title'));
+            }
+            o.focus(function(){
+                o.removeClass('greyinput');
+                if(o.val() == o.attr('title')) o.val('');
+            });
+            o.blur(function(){
+                if(!o.val()){
+                    o.addClass('greyinput');
+                    o.val(o.attr('title'));
+                }
+            });
+        }
+
+        if($.browser.msie && $.browser.version == 6.0) {
+            $('.tags-del').hover(
+                function () { $(this).addClass('tags-hover'); },
+                function () { $(this).removeClass('tags-hover'); }
+            );
+        }
+        if (location.href.split('#').length > 1) {
+            //changeUrl ();
+        }
+
+    });
+
+    function setHash (a) {
+        $.browser.msie?$.locationHash(a):location.hash = a;
+    }
+    /*]]>*/</script><link rel="shortcut icon" href="http://img3.douban.com/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="http://img3.douban.com/misc/mixed_static/7b35e713dfd3cb1b.css">
+    </head>
+    <body>
+    <script type="text/javascript">var _body_start=new Date();</script>
+    
+
+
+
+
+
+
+
+<div id="db-global-nav" class="global-nav global-nav-a">
+  <div class="bd">
+    
+
+
+
+
+
+
+<div class="top-nav-info">
+    
+    <a href="http://www.douban.com/accounts/login" rel="nofollow">登录</a>
+    <a href="http://www.douban.com/accounts/register">注册</a>
+</div>
+
+
+
+    <div class="global-nav-items">
+      <ul>
+          
+            
+            <li>
+              <a href="http://www.douban.com/">豆瓣</a>
+            </li>
+          
+            
+            <li>
+              <a href="http://book.douban.com/">读书</a>
+            </li>
+          
+            
+            <li class="on">
+              <a href="http://movie.douban.com/">电影</a>
+            </li>
+          
+            
+            <li>
+              <a href="http://music.douban.com/">音乐</a>
+            </li>
+          
+            
+            <li>
+              <a href="http://www.douban.com/location/">同城</a>
+            </li>
+          
+            
+            <li>
+              <a href="http://read.douban.com/?dcs=top-nav&amp;dcm=douban" target="_blank">阅读</a>
+            </li>
+          
+            
+            <li>
+              <a href="http://douban.fm/" target="_blank">豆瓣FM</a>
+            </li>
+          
+            <li>
+              <a href="#more" class="bn-more"><span>更多</span></a>
+              <div class="more-items">
+                <table cellpadding="0" cellspacing="0">
+                    
+                    <tr><td><a href="http://9.douban.com" target="_blank">九点</a></td></tr>
+                    
+                    <tr><td><a href="http://alphatown.com" target="_blank">阿尔法城</a></td></tr>
+                    
+                    <tr><td><a href="http://www.douban.com/mobile/" target="_blank">移动应用</a></td></tr>
+                </table>
+              </div>
+            </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+
+    
+
+
+
+
+
+
+
+
+<div id="db-nav-movie" class="nav">
+  <div class="nav-wrap">
+  <div class="nav-primary">
+    <div class="nav-logo">
+      <a href="http://movie.douban.com">豆瓣电影</a>
+    </div>
+    <div class="nav-search">
+      <form action="http://movie.douban.com/subject_search" method="get">
+        <fieldset>
+          <legend>搜索：</legend>
+          <label for="inp-query">电影、影人、影院、电视剧</label>
+          <div class="inp"><input id="inp-query" name="search_text" size="22" maxlength="60" value=""></div>
+          <div class="inp-btn"><input type="submit" value="搜索"></div>
+          <input type="hidden" name="cat" value="1002" />
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  </div>
+  <div class="nav-secondary">
+    
+  
+  <div class="nav-items nav-anon">
+      <ul>
+        
+                          
+                 <li><a href="/nowplaying/">影讯&amp;购票</a></li>
+             
+                 <li><a href="/tv/">电视剧</a></li>
+             
+                 <li><a href="/chart">排行榜</a></li>
+             
+                 <li><a href="/tag/">分类</a></li>
+             
+                 <li><a href="/review/best/">影评</a></li>
+      
+      </ul>
+  </div>
+ 
+  </div>
+</div>
+
+  
+  <script id="suggResult" type="text/x-jquery-tmpl">
+      <li data-link="{{= url}}">
+          <a href="{{= url}}">
+              <img src="{{= img}}" width="40" />
+              <p>
+                  <em>{{= title}}</em>
+                  {{if year}}
+                      <span>{{= year}}</span>
+                  {{/if}}
+                  {{if sub_title}}
+                      <br /><span>{{= sub_title}}</span>
+                  {{/if}}
+                  {{if address}}
+                      <br /><span>{{= address}}</span>
+                  {{/if}}
+                  {{if episode}}
+                      {{if episode=="unknow"}}
+                          <br /><span>集数未知</span>
+                      {{else}}
+                          <br /><span>共{{= episode}}集</span>
+                      {{/if}}
+                  {{/if}}
+              </p>
+          </a>
+      </li>
+  </script>
+  
+
+
+
+
+
+    <div id="wrapper" >
+    <h1>电影标签：<span class="tags-name">2012</span><sup class="tags-del"></sup> <span class="tags-add">+</span><span class="tags-name">美国</span><sup class="tags-del"></sup> </h1>
+    <div id="content">
+        <div class="grid-16-8 clearfix">
+                <div class="article">
+        
+        <table width="100%" class="infobox">
+            <tbody>
+                <tr>
+                    <td class="tablelt"/>
+                    <td class="tablect"/>
+                    <td class="tablert"/>
+                </tr>
+                <tr>
+                    <td class="tablelc"/>
+                        <td class="tablecc">
+                            <div class="tags-result" id="related_tags">
+                            </div>
+                        </td>
+                        <td class="tablerc"/>
+                </tr>
+                <tr>
+                    <td class="tablelb"/>
+                    <td class="tablecb"/>
+                    <td class="tablerb"/>
+                </tr>
+            </tbody>
+        </table>
+        <div class="clearfix">
+    <span class="rr greyinput">综合排序&nbsp;/&nbsp;<a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?type=S">评分排序</a>&nbsp;/&nbsp;<a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?type=R">日期排序</a>&nbsp;/&nbsp;<a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?type=O">标注次数排序</a></span></div> 
+
+    <div id="subject_list">
+    
+        <p class="ul first"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/10867124/"  title="新闻编辑室 第二季" >
+            <img src="http://img3.douban.com/spic/s11131361.jpg" alt="新闻编辑室 第二季"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/10867124/"  >新闻编辑室 第二季 / <span style="font-size:12px;">新闻间轶事 / 新闻中心</span></a></div><p class="pl">2013-06 / 杰夫·丹尼尔斯 / 艾米莉·莫迪默 / 艾丽森·皮尔 / 小约翰·加拉赫 / 美国 / www.hbo.com/the-newsroom / 格雷格·莫托拉 / 艾利克斯·格雷夫斯 / 艾伦·瑞克曼 / 莱斯利·林卡·格拉特 / 新闻编辑室 / 新闻编辑室 / 剧情 / 艾伦·索金 Aaron...</p><div class="star clearfix"><span class="allstar00"></span><span class="rating_nums"></span><span class="pl">(尚未上映)</span></div></td></tr></table><div id="collect_form_10867124"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/19968498/"  title="极速前进 第二十一季" >
+            <img src="http://img3.douban.com/spic/s22709370.jpg" alt="极速前进 第二十一季"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/19968498/"  >极速前进 第二十一季</a></div><p class="pl">2012-09-30 / 菲尔·基欧汉 / 美国 / 极速前进 / 42分钟 / 极速前进 / 冒险 / 英语</p><div class="star clearfix"><span class="allstar45"></span><span class="rating_nums">8.4</span><span class="pl">(225人评价)</span></div></td></tr></table><div id="collect_form_19968498"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/1891157/"  title="神偷艳贼" >
+            <img src="http://img3.douban.com/spic/s21864304.jpg" alt="神偷艳贼"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/1891157/"  >神偷艳贼 / <span style="font-size:12px;">神偷艳贼</span></a></div><p class="pl">2012-11-21(美国/英国) / 卡梅隆·迪亚茨 / 柯林·菲尔斯 / 艾伦·瑞克曼 / 史坦利·图齐 / 克劳斯·利特曼 / 汤姆·康特奈 / 美国 / 迈克尔·霍夫曼 / 神偷艳贼 / 喜剧 / 犯罪 / 伊桑·科恩 Ethan Coen / 乔尔·科恩 Joel Coen / 英语</p><div class="star clearfix"><span class="allstar35"></span><span class="rating_nums">6.3</span><span class="pl">(53人评价)</span></div></td></tr></table><div id="collect_form_1891157"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/5960681/"  title="德州电锯杀人狂3D" >
+            <img src="http://img3.douban.com/spic/s11317063.jpg" alt="德州电锯杀人狂3D"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/5960681/"  >德州电锯杀人狂3D / <span style="font-size:12px;">德州电锯杀人狂 3D</span></a></div><p class="pl">2013-01-04(美国) / 亚历珊德拉·达达里奥 / 坦妮娅·雷蒙德 / Trey Songz / Keram Malicki-Sánchez / Richard Riehle / 肖恩·西珀斯 / 保罗·瑞 / 斯科特·伊斯特伍德 / 美国 / 德州电锯杀人狂3D / 悬疑 / 惊悚 / 恐怖 / Kim Henkel / Adam Marcus / 英语</p><div class="star clearfix"><span class="allstar00"></span><span class="rating_nums"></span><span class="pl">(尚未上映)</span></div></td></tr></table><div id="collect_form_5960681"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/3450086/"  title="白昼冷光" >
+            <img src="http://img3.douban.com/spic/s7041167.jpg" alt="白昼冷光"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/3450086/"  >白昼冷光 / <span style="font-size:12px;">白日暗战(港) / 解救时刻</span></a><style>.icon-on-air{font-size:12px;margin-left:15px;background-color:#71B5DE;color:#fff;padding:3px 5px;border-radius:3px;}</style><span class="icon-on-air">可播放</span></div><p class="pl">2012-04-06(英国) / 2012-10-12(中国大陆) / 亨利·卡维尔 / 布鲁斯·威利斯 / 西格妮·韦弗 / 薇洛妮卡·恩切圭 / 约瑟夫·马勒 / 卡罗琳·古道 / 拉菲·格拉沃恩 / 艾玛·汉密尔顿 / 美国 / 西班牙 / www.thecoldlightofday.com / 马布鲁克·埃尔·梅奇...</p><div class="star clearfix"><span class="allstar25"></span><span class="rating_nums">4.8</span><span class="pl">(5261人评价)</span></div></td></tr></table><div id="collect_form_3450086"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/6873828/"  title="未婚女子" >
+            <img src="http://img3.douban.com/spic/s11109778.jpg" alt="未婚女子"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/6873828/"  >未婚女子</a></div><p class="pl">2012-09-07(美国) / 安德鲁·兰内斯 / 克斯汀·邓斯特 / 丽兹·卡潘 / 艾拉·菲舍尔 / Horatio Sanz / 凯尔·柏海莫 / 詹姆斯·麦斯登 / 蕾蓓尔·威尔森 / 美国 / 未婚女子 / 喜剧 / Leslye Headland / 英语</p><div class="star clearfix"><span class="allstar25"></span><span class="rating_nums">5.0</span><span class="pl">(1010人评价)</span></div></td></tr></table><div id="collect_form_6873828"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/6875925/"  title="我必将离去" >
+            <img src="http://img3.douban.com/spic/s10487508.jpg" alt="我必将离去"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/6875925/"  >我必将离去 / <span style="font-size:12px;">我必须离开</span></a></div><p class="pl">梅兰妮·林斯基 / 布莱思·丹纳 / 约翰·鲁宾斯坦 / 美国 / 托德·路易斯 / 我必将离去 / 喜剧 / Sarah Koskoff / 英语</p><span class="pl">(评价人数不足)</span></div></td></tr></table><div id="collect_form_6875925"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/10617597/"  title="纽约皮囊" >
+            <img src="http://img3.douban.com/spic/s23004284.jpg" alt="纽约皮囊"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/10617597/"  >纽约皮囊</a></div><p class="pl">2012-05-01 / Blake Young-Fountain / Jeffrey Bowyer-Chapman / 威尔逊·克鲁兹 / 美国 / 103分钟 / 纽约皮囊 / 剧情 / 同性 / Patrik-Ian Polk / 英语</p><span class="pl">(评价人数不足)</span></div></td></tr></table><div id="collect_form_10617597"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/4126925/"  title="凡人圣物：白骨之城" >
+            <img src="http://img3.douban.com/spic/s24230498.jpg" alt="凡人圣物：白骨之城"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/4126925/"  >凡人圣物：白骨之城 / <span style="font-size:12px;">The Mortal Instruments: City of Bones</span></a></div><p class="pl">2013-08-23(美国) / 杰米·坎贝尔·鲍尔 / 莉莉·柯林斯 / 罗伯特·席安 / 美国 / www.themortalinstrumentsmovie.com / 凡人圣物：白骨之城 / 剧情 / 动作 / 爱情 / 悬疑 / 奇幻 / 冒险 / Cassandra Clare / I. Marlene King / 英语</p><span class="pl">(尚未上映)</span></div></td></tr></table><div id="collect_form_4126925"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/10767494/"  title="分手后 第一季" >
+            <img src="http://img3.douban.com/spic/s22707392.jpg" alt="分手后 第一季"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/10767494/"  >分手后 第一季 / <span style="font-size:12px;">分手后</span></a></div><p class="pl">2012-05-04 / 美国 / 转身后 / 20分钟 / 分手后 / 喜剧 / 同性 / Adam Goldman / 英语</p><div class="star clearfix"><span class="allstar45"></span><span class="rating_nums">8.2</span><span class="pl">(714人评价)</span></div></td></tr></table><div id="collect_form_10767494"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/10597950/"  title="大西洋帝国 第三季" >
+            <img src="http://img3.douban.com/spic/s19167392.jpg" alt="大西洋帝国 第三季"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/10597950/"  >大西洋帝国 第三季 / <span style="font-size:12px;">海滨帝国 第三季 / 东岸赌城风云 第三季</span></a></div><p class="pl">2012-09-16(英国) / 史蒂夫·布西密 / 凯莉·麦克唐纳 / 迈克尔·珊农 / Domenic Ambroselli / 约翰·哈林顿·布兰德 / 大卫·坎贝尔 / 美国 / www.hbo.com/boardwalk-empire / 蒂莫西·范·帕腾 / 大西洋帝国 / 60分钟 / 大西洋帝国 / 剧情 / 犯罪 / 特伦斯·温特...</p><div class="star clearfix"><span class="allstar50"></span><span class="rating_nums">9.4</span><span class="pl">(1866人评价)</span></div></td></tr></table><div id="collect_form_10597950"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/4904672/"  title="羊群" >
+            <img src="http://img3.douban.com/spic/s7060077.jpg" alt="羊群"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/4904672/"  >羊群 / <span style="font-size:12px;">山羊</span></a></div><p class="pl">2012-08-10(美国) / 维拉·法米加 / 大卫·杜楚尼 / 凯丽·拉塞尔 / 泰·布利尔 / 格拉汉姆·菲利普斯 / 贾斯汀·柯克 / 达科塔·约翰逊 / 美国 / 94分钟 / 羊群 / 喜剧 / Mark Poirier / 英语</p><div class="star clearfix"><span class="allstar35"></span><span class="rating_nums">6.5</span><span class="pl">(37人评价)</span></div></td></tr></table><div id="collect_form_4904672"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/10429695/"  title="灵动：鬼影实录4" >
+            <img src="http://img5.douban.com/spic/s11159969.jpg" alt="灵动：鬼影实录4"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/10429695/"  >灵动：鬼影实录4 / <span style="font-size:12px;">灵动：鬼影实录4 / 鬼入境4(台)</span></a></div><p class="pl">2012-10-19(美国) / 凯蒂·菲德斯通 / 凯瑟琳·牛顿 / 斯普雷吉·格雷登 / Matt Shively / Stephen Dunham / 亚力桑德拉·李 / 美国 / 88分钟 / 灵动：鬼影实录4 / 恐怖 / Christopher Landon / Chad Feehan / 英语</p><div class="star clearfix"><span class="allstar25"></span><span class="rating_nums">4.9</span><span class="pl">(928人评价)</span></div></td></tr></table><div id="collect_form_10429695"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/3804734/"  title="奥兹国的桃乐西" >
+            <img src="http://img3.douban.com/spic/s7059415.jpg" alt="奥兹国的桃乐西"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/3804734/"  >奥兹国的桃乐西 / <span style="font-size:12px;">奥兹国的桃乐西</span></a></div><p class="pl">2012-12-01 / 帕特里克·斯图尔特 / 丽亚·米雪儿 / 休·丹西 / 丹·艾克罗伊德 / 美国 / Dan St. Pierre / Will Finn / 奥兹国的桃乐西 / 动画 / 音乐 / 家庭 / Roger S. Baum(小说作者) / Barry Glasser / 英语</p><span class="pl">(评价人数不足)</span></div></td></tr></table><div id="collect_form_3804734"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/7046520/"  title="杀人狂魔" >
+            <img src="http://img3.douban.com/spic/s10199832.jpg" alt="杀人狂魔"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/7046520/"  >杀人狂魔 / <span style="font-size:12px;">杀人狂魔</span></a></div><p class="pl">2012-05-26 / 伊利亚·伍德 / 阿美莉嘉·奥利沃 / 诺拉·阿娜泽德尔 / 莲妮·芭拉班 / 美国 / 杀人狂魔 / 犯罪 / 悬疑 / 恐怖 / 亚历山大·阿嘉 Alexandre Aja / Grégory Levasseur / 英语</p><span class="pl">(评价人数不足)</span></div></td></tr></table><div id="collect_form_7046520"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/11503063/"  title="老大哥(美版) 第十四季" >
+            <img src="http://img3.douban.com/spic/s11097027.jpg" alt="老大哥(美版) 第十四季"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/11503063/"  >老大哥(美版) 第十四季</a></div><p class="pl">2012-07-12(美国) / Julie Chen / 美国 / 老大哥(美版) / 45分钟 / 老大哥(美版) / 英语</p><div class="star clearfix"><span class="allstar45"></span><span class="rating_nums">8.4</span><span class="pl">(344人评价)</span></div></td></tr></table><div id="collect_form_11503063"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/4023250/"  title="制胜一击" >
+            <img src="http://img3.douban.com/spic/s7016942.jpg" alt="制胜一击"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/4023250/"  >制胜一击 / <span style="font-size:12px;">即刻反击(台) / 狙煞特攻(港)</span></a></div><p class="pl">2012-01-20(美国) / 吉娜·卡拉诺 / 伊万·麦克格雷格 / 迈克尔·法斯宾德 / 查宁·塔图姆 / 安东尼奥·班德拉斯 / 迈克尔·道格拉斯 / 比尔·帕克斯顿 / 美国 / 爱尔兰 / www.haywiremovie.com / 史蒂文·索德伯格 / 93分钟 / 制胜一击 / 动作 / 惊悚...</p><div class="star clearfix"><span class="allstar25"></span><span class="rating_nums">4.9</span><span class="pl">(3214人评价)</span></div></td></tr></table><div id="collect_form_4023250"></div>
+        <p class="ul"></p><table width="100%"><tr class="item"><td width="100" valign="top">
+        
+            <a class="nbg" href="http://movie.douban.com/subject/3292949/"  title="白宫管家" >
+            <img src="http://img3.douban.com/pics/movie-default-small.gif" alt="白宫管家"/></a>
+            </td><td valign="top"><div class="pl2"><a href="http://movie.douban.com/subject/3292949/"  >白宫管家 / <span style="font-size:12px;">白宫管家</span></a></div><p class="pl">福里斯特·惠特克 / 奥普拉·温弗瑞 / 大卫·奥伊罗 / 美国 / 李·丹尼尔斯 / 白宫管家 / 剧情 / Wil Haygood / 李·丹尼尔斯 Lee Daniels / 英语</p><span class="pl">(评价人数不足)</span></div></td></tr></table><div id="collect_form_3292949"></div><div class="paginator"><span class="prev"><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=280&type=T">&lt;前页</a><link rel="prev" href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=280&type=T"/></span><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=0&type=T">1</a><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=20&type=T">2</a><span class="break">...</span><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=220&type=T">12</a><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=240&type=T">13</a><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=260&type=T">14</a><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=280&type=T">15</a><span class="thispage">16</span><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=320&type=T">17</a><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=340&type=T">18</a><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=360&type=T">19</a><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=380&type=T">20</a><span class="break">...</span><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=1880&type=T">95</a><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=1900&type=T">96</a><span class="next"><a href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=320&type=T">后页&gt;</a><link rel="next" href="http://movie.douban.com/tag/2012%20%E7%BE%8E%E5%9B%BD?start=320&type=T"/></span></div>
+    </div>
+    
+                </div>
+            <div class="aside">
+    <br/><div id="dale_movie_tag_top_right"></div><h2>搜索相关标签 · · · · · ·</h2><form name="tsp_form" action="http://movie.douban.com/tag/" method="GET"><input name="search_text" class="j a_search_text" type="text" size="24" maxlength="36" title="去其他标签" value=""/>
+    <input class="butt" type="submit" value="进入"/>
+    </form><br/><br/><p class="pl2 mb30">&gt; <a href="http://movie.douban.com/tag/">浏览全部电影标签</a></p>
+        
+
+
+
+
+<script type="text/javascript">
+    (function (global) {
+        var newNode = global.document.createElement('script'),
+            existingNode = global.document.getElementsByTagName('script')[0],
+            adSource = 'http://erebor.douban.com/',
+            userId = '',
+            browserId = 'xwDu7KxFQIk',
+            ipAddress = '123.120.83.2',
+            criteria = '3:/tag/2012%20美国?start=300',
+            preview = '',
+            debug = false,
+            adSlots = ['dale_movie_tag_top_right'];
+
+        global.DoubanAdRequest = {src: adSource, uid: userId, bid: browserId, ip: ipAddress, crtr: criteria, prv: preview, debug: debug};
+        global.DoubanAdSlots = (global.DoubanAdSlots || []).concat(adSlots);
+
+        newNode.setAttribute('type', 'text/javascript');
+        newNode.setAttribute('src', 'http://img3.douban.com/js/packed_ad3738113870.js');
+        newNode.setAttribute('async', true);
+        existingNode.parentNode.insertBefore(newNode, existingNode);
+    })(this);
+</script>
+
+
+
+
+            </div>
+            <div class="extra">
+    
+            </div>
+        </div>
+    </div>
+    
+        <div id="footer">
+            <span id="icp" class="fleft gray-link">&copy; 2005－2013 douban.com, all rights reserved
+        
+            </span>
+            <span class="fright">
+                <a href="http://www.douban.com/about">关于豆瓣</a>
+                · <a href="http://www.douban.com/jobs">在豆瓣工作</a>
+                · <a href="http://www.douban.com/about?topic=contactus">联系我们</a>
+                · <a href="http://www.douban.com/about?policy=disclaimer">免责声明</a>
+                · <a href="http://www.douban.com/help/">帮助中心</a>
+        
+                    · <a href="http://developers.douban.com">开发者</a>
+                    · <a href="http://movie.douban.com/mobile">手机电影</a>
+                    · <a href="http://www.douban.com/partner/">豆瓣广告</a>
+                </span>
+            </div>
+            </div><script type="text/javascript" src="http://img3.douban.com/misc/mixed_static/852a89fb64a692a.js"></script>
+        <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-7019765-1']);
+        _gaq.push(['_addOrganic', 'baidu', 'word']);
+        _gaq.push(['_addOrganic', 'soso', 'w']);
+        _gaq.push(['_addOrganic', '3721', 'name']);
+        _gaq.push(['_addOrganic', 'yodao', 'q']);
+        _gaq.push(['_addOrganic', 'vnet', 'kw']);
+        _gaq.push(['_addOrganic', 'sogou', 'query']);
+        _gaq.push(['_addIgnoredOrganic', '豆瓣']);
+        _gaq.push(['_addIgnoredOrganic', 'douban']);
+        _gaq.push(['_addIgnoredOrganic', '豆瓣网']);
+        _gaq.push(['_addIgnoredOrganic', 'www.douban.com']);
+        _gaq.push(['_setDomainName', '.douban.com']);
+        _gaq.push(['_trackPageview', '']);
+        _gaq.push(['_trackPageLoadTime']);
+        
+        if (typeof(_letv) == "string") {
+            _gaq.push(['_trackEvent', 'LetvUrl', 'view', _letv, 1]);
+        }
+        if (typeof(_qiyi) == "string") {
+            _gaq.push(['_trackEvent', 'QiyiUrl', 'view', _qiyi, 1]);
+        }
+        if (typeof(_sohuhd) == "string") {
+            _gaq.push(['_trackEvent', 'SohuHdUrl', 'view', _sohuhd, 1]);
+        }
+        if (typeof(_youku) == "string") {
+            _gaq.push(['_trackEvent', 'YoukuUrl', 'view', _youku, 1]);
+        }
+        if (typeof(_tudou) == "string") {
+            _gaq.push(['_trackEvent', 'TudouUrl', 'view', _tudou, 1]);
+        }
+        
+        (function() {
+            var ga = document.createElement('script');
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            ga.setAttribute('async', 'true');
+            document.documentElement.firstChild.appendChild(ga);
+        })();
+        </script>
+        
+            <script src="http://img3.douban.com/js/boomerang.js?09" type="text/javascript"></script>
+            <script type="text/javascript">
+            BOOMR.init({
+                user_ip: "${request.ip}",
+                beacon_url: "/beacon.gif",
+                site_domain: ".douban.com",
+                BW: {
+                    enabled: false
+                }
+            });
+            BOOMR.subscribe('before_beacon', function(o) {
+                if(o.t_done && o.t_done > 0 && o.t_done < 30) {
+                    _gaq.push(['t1._trackEvent', 'Performance', 'done', '/movie/tag/-', o.t_done]);
+                }
+            });
+            var _now = new Date();
+            if (typeof(_head_start)==typeof(_now)) {
+                var t_head = _now-_head_start;
+                var t_body = _now-_body_start;
+                if (t_head < 60*1000 && t_head > 0) {
+                  var _slow = t_head > 10*1000 ? 'slow ' : '';
+                  _gaq.push(['t1._trackEvent', 'Performance', _slow + 'head', '/movie/tag/-', _now-_head_start]);
+                  _gaq.push(['t1._trackEvent', 'Performance', _slow + 'body', '/movie/tag/-', _now-_body_start]);
+                }
+            }
+            </script>
+            <!-- hogg1 --></body></html>
