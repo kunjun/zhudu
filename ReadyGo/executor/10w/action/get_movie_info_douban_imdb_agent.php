@@ -77,6 +77,7 @@ class get_movie_info_douban_imdb_agent
                     if (preg_match("/bad imdb id/",$doubanContent) || preg_match("/wrong subject id/",$doubanContent)) {
                         $rowTmp = array();
                         $rowTmp['id'] = $value['id'];
+                        //豆瓣中没有
                         $rowTmp['is_ok'] = 2;
                         $r = $this->gaTools['mysqldb']->update('movie',$rowTmp);
                         continue;
@@ -91,13 +92,35 @@ class get_movie_info_douban_imdb_agent
                     show_msg("电视剧《".$value['aka_cn']."》；集数：".$dom->plaintext."<br />\r\n");
                     continue;
                 }
-                $row2['douban_id'] = $value['douban_id'];
-                $dom = $domCon->find("db:attribute[name=imdb]",0);
-                if ($dom) {
-                    if (preg_match("/(tt\d+)/",$dom->plaintext,$arr)) {
-                        $row2['imdb_id'] = $arr[1];
+                if (!isset($value['douban_id'])) {
+                    $value['douban_id'] = '';
+                    $dom = $domCon->find("id",0);
+                    if ($dom) {
+                        $str = $dom->plaintext;
+                        if (preg_match("/\/(\d+)$/",$str,$arr)) {
+                            $value['douban_id'] = $arr[1];
+                        }
+                    } 
+                }
+                if (!isset($value['imdb_id'])) {
+                    $value['imdb_id'] = '';
+                    $dom = $domCon->find("db:attribute[name=imdb]",0);
+                    if ($dom) {
+                        if (preg_match("/(tt\d+)/",$dom->plaintext,$arr)) {
+                            $value['imdb_id'] = $arr[1];
+                        }
                     }
                 }
+                if (!isset($value['aka_cn'])) {
+                    $value['aka_cn'] = '';
+                    $dom = $domCon->find("db:attribute[lang=zh_CN]",0);
+                    if ($dom) {
+                        if (isset($dom->name) && $dom->name == 'aka') {
+                            $value['aka_cn'] = $dom->plaintext;
+                        }
+                    }
+                }
+                $row2['douban_id'] = $value['douban_id'];
                 $dom = $domCon->find("title",0);
                 if ($dom) {
                     $row2['title'] = $dom->plaintext;
@@ -118,94 +141,94 @@ class get_movie_info_douban_imdb_agent
                 if ($dom) {
                     $row2['year'] = $dom->plaintext;
                 }
-                $dom = $domCon->find("db:attribute[name=movie_duration");
+                $dom = $domCon->find("db:attribute[name=movie_duration]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['movie_duration'] = substr($items,0,-3);
                     }
                 }
-                $dom = $domCon->find("db:attribute[name=country");
+                $dom = $domCon->find("db:attribute[name=country]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['country'] = substr($items,0,-3);
                     }
                 }
-                $dom = $domCon->find("db:attribute[name=writer");
+                $dom = $domCon->find("db:attribute[name=writer]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['writer'] = substr($items,0,-3);
                     }
                 }
-                $dom = $domCon->find("db:attribute[name=director");
+                $dom = $domCon->find("db:attribute[name=director]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['director'] = substr($items,0,-3);
                     }
                 }
-                $dom = $domCon->find("db:attribute[name=pubdate");
+                $dom = $domCon->find("db:attribute[name=pubdate]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['pubdate'] = substr($items,0,-3);
                     }
                 }
-                $dom = $domCon->find("db:attribute[name=aka");
+                $dom = $domCon->find("db:attribute[name=aka]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['aka'] = substr($items,0,-3);
                     }
                 }
-                $dom = $domCon->find("db:attribute[name=movie_type");
+                $dom = $domCon->find("db:attribute[name=movie_type]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['movie_type'] = substr($items,0,-3);
                     }
                 }
-                $dom = $domCon->find("db:attribute[name=language");
+                $dom = $domCon->find("db:attribute[name=language]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['language'] = substr($items,0,-3);
                     }
                 }
                 $row2['aka_cn'] = $value['aka_cn'];
-                $dom = $domCon->find("db:attribute[name=cast");
+                $dom = $domCon->find("db:attribute[name=cast]");
                 if ($dom) {
                     $items = "";
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->plaintext . ' / ';
                     }
-                    if ($pubdates) {
+                    if ($items) {
                         $row2['cast'] = substr($items,0,-3);
                     }
                 }
@@ -220,8 +243,8 @@ class get_movie_info_douban_imdb_agent
                     foreach ($dom as $k_k=>$v_v) {
                         $items .= $v_v->name . '('.$v_v->count.')' . ' / ';
                     }
-                    if ($pubdates) {
-                        $row2['tag'] = substr($tags,0,-3);
+                    if ($items) {
+                        $row2['tag'] = substr($items,0,-3);
                     }
                 }
                 $dom = $domCon->find("db:attribute[name=website]",0);
@@ -234,26 +257,25 @@ class get_movie_info_douban_imdb_agent
 
                 $rowTmp = array();
                 $rowTmp['id'] = $value['id'];
+                //已在豆瓣中找过
                 $rowTmp['is_ok'] = 1;
-                // $r = $this->gaTools['mysqldb']->update('movie',$rowTmp);
-                dump($rowTmp);
-                echo '----------------------------';
-                dump($row2);
-                die;
+                // $r = $this->gaTools['mysqldb']->update('douban_tmp',$rowTmp);
+                // dump($rowTmp);
+                // echo '----------------------------';
+                // dump($row2);
+                // die;
                 
                 $this->gaTools['mysqldb']->escape_row($row2);
-                $r = $this->gaTools['mysqldb']->update($this->aConfig['tb_name_0'],$row2);
-                
-                $this->gaTools['mysqldb']->escape_row($row3);
-                $aTmp2 = $this->gaTools['mysqldb']->get('SELECT * FROM '.$this->aConfig['tb_name_1'] . ' WHERE mid=' . $value['id']);
+                $aTmp2 = $this->gaTools['mysqldb']->get('SELECT * FROM tmp_movie WHERE douban_id="' . $value['douban_id'].'"');
                 if ($aTmp2) {
-                    $row3['id'] = $aTmp2['id'];
-                    $r = $this->gaTools['mysqldb']->update($this->aConfig['tb_name_1'],$row3);
+                    show_msg('<'.$value['aka_cn'].">已存在<br />\r\n");
+                    $row2['id'] = $aTmp2['id'];
+                    $r = $this->gaTools['mysqldb']->update('tmp_movie',$row2);
                 } else {
-                    $r = $this->gaTools['mysqldb']->save($this->aConfig['tb_name_1'],$row3);
+                    $r = $this->gaTools['mysqldb']->save('tmp_movie',$row2);
                 }
-                show_msg("过滤保存成功<br />\r\n");
-//                 die;
+                show_msg('<'.$value['aka_cn'].">过滤保存成功<br />\r\n");
+                die;
             }
         }
         die;
