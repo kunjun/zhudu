@@ -40,11 +40,18 @@ class get_movie_info_douban_imdb_agent
         $aArgv = $GLOBALS['argv'];
         $this->aParameter['start0'] = isset($aArgv[5]) ? $aArgv[5] : '';
         $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '';
+        $this->aParameter['apikey_index'] = isset($aArgv[7]) ? $aArgv[7] : '0';
+        $this->aParameter['url_template_index'] = isset($aArgv[8]) ? $aArgv[8] : '0';
 //         dump($this->aParameter);
         
+        $apikey = isset($this->aConfig['apikey'][$this->aParameter['apikey_index']]) ? $this->aConfig['apikey'][$this->aParameter['apikey_index']] : '';
+        $url_template_index = $this->aParameter['url_template_index'];
+        $tb_name = $this->aConfig['tb_name'][$url_template_index];
+
         $this->aScriptNeed['charset_of_getcon'] = 'UTF-8';
         
         show_msg("开始获取豆瓣电影数据.......<br />\r\n");
+        // $where = ' WHERE updated_at>1357315200 AND updated_at<1357729200 AND imdb_id="" ';
         $where = ' WHERE 1 ';
         if ($this->aParameter['start0'] != '') {
             $where .= ' AND id>='.$this->aParameter['start0'];
@@ -52,9 +59,13 @@ class get_movie_info_douban_imdb_agent
         if ($this->aParameter['end'] != '') {
             $where .= ' AND id<'.$this->aParameter['end'];
         }
-        $aTmp = $this->gaTools['mysqldb']->find('SELECT * FROM douban_tmp '.$where.' AND is_ok=0 ORDER BY id ASC');
+        //SELECT * FROM `movie` WHERE imdb_id="" AND updated_at>1357315200
+        $aTmp = $this->gaTools['mysqldb']->find('SELECT * FROM '.$tb_name.' '.$where.' AND is_ok=0 ORDER BY id ASC');
+        //$aTmp = $this->gaTools['mysqldb']->find('SELECT * FROM movie '.$where.' ORDER BY id ASC');
         $id = isset($aTmp[0]['id']) ? $aTmp[0]['id'] : '';
         show_msg("从id=“{$id}”开始.......<br />\r\n");
+        // dump($aTmp);
+        // die;
         // echo count($aTmp);
         // die;
 
@@ -64,10 +75,10 @@ class get_movie_info_douban_imdb_agent
                 show_msg("id={$value['id']}.......");
                 $row2 = array();
 
-                $url = remove_blank($this->aConfig['url_0_template']['con']);
-                $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], $value['douban_id'], $url);
+                $url = remove_blank($this->aConfig['url_template'][$url_template_index]['con']);
+                $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_template'][$url_template_index]['search_replace'], array($value['imdb_id'],$apikey), $url);
                 $sUrl = $this->aScriptNeed['url_url_0'];
-                
+                // die($sUrl);
                 $doubanContent = meclient($sUrl);
                 $domCon = str_get_html($doubanContent);
                 $dom = $domCon->find("id",0);
@@ -79,7 +90,10 @@ class get_movie_info_douban_imdb_agent
                         $rowTmp['id'] = $value['id'];
                         //豆瓣中没有
                         $rowTmp['is_ok'] = 2;
-                        $r = $this->gaTools['mysqldb']->update('movie',$rowTmp);
+                        $r = $this->gaTools['mysqldb']->update($tb_name,$rowTmp);
+                        if (isset($aTmp[$key])) {
+                            unset($aTmp[$key]);
+                        }
                         continue;
                     } else {
                         show_msg("尼玛！douban_id没有！！被封？？<br />\r\n");
@@ -89,10 +103,20 @@ class get_movie_info_douban_imdb_agent
                 
                 $dom = $domCon->find("db:attribute[name=episodes]",0);
                 if ($dom) {
-                    show_msg("电视剧《".$value['aka_cn']."》；集数：".$dom->plaintext."<br />\r\n");
-                    continue;
+                    if ($dom->plaintext > 1) {
+                        show_msg("电视剧《".$value['imdb_title']."》；集数：".$dom->plaintext."<br />\r\n");
+                        $rowTmp = array();
+                        $rowTmp['id'] = $value['id'];
+                        //已在豆瓣中找过,且不是电影
+                        $rowTmp['is_ok'] = 3;
+                        $r = $this->gaTools['mysqldb']->update($tb_name,$rowTmp);
+                        if (isset($aTmp[$key])) {
+                            unset($aTmp[$key]);
+                        }
+                        continue;
+                    }
                 }
-                if (!isset($value['douban_id'])) {
+                if (!isset($value['douban_id']) || empty($value['douban_id'])) {
                     $value['douban_id'] = '';
                     $dom = $domCon->find("id",0);
                     if ($dom) {
@@ -102,7 +126,7 @@ class get_movie_info_douban_imdb_agent
                         }
                     } 
                 }
-                if (!isset($value['imdb_id'])) {
+                if (!isset($value['imdb_id']) || empty($value['imdb_id'])) {
                     $value['imdb_id'] = '';
                     $dom = $domCon->find("db:attribute[name=imdb]",0);
                     if ($dom) {
@@ -111,7 +135,7 @@ class get_movie_info_douban_imdb_agent
                         }
                     }
                 }
-                if (!isset($value['aka_cn'])) {
+                if (!isset($value['aka_cn']) || empty($value['aka_cn'])) {
                     $value['aka_cn'] = '';
                     $dom = $domCon->find("db:attribute[lang=zh_CN]",0);
                     if ($dom) {
@@ -121,6 +145,8 @@ class get_movie_info_douban_imdb_agent
                     }
                 }
                 $row2['douban_id'] = $value['douban_id'];
+                $row2['imdb_id'] = $value['imdb_id'];
+                $row2['title'] = '';
                 $dom = $domCon->find("title",0);
                 if ($dom) {
                     $row2['title'] = $dom->plaintext;
@@ -259,26 +285,34 @@ class get_movie_info_douban_imdb_agent
                 $rowTmp['id'] = $value['id'];
                 //已在豆瓣中找过
                 $rowTmp['is_ok'] = 1;
-                // $r = $this->gaTools['mysqldb']->update('douban_tmp',$rowTmp);
+                $r = $this->gaTools['mysqldb']->update($tb_name,$rowTmp);
                 // dump($rowTmp);
                 // echo '----------------------------';
                 // dump($row2);
                 // die;
                 
                 $this->gaTools['mysqldb']->escape_row($row2);
-                $aTmp2 = $this->gaTools['mysqldb']->get('SELECT * FROM tmp_movie WHERE douban_id="' . $value['douban_id'].'"');
-                if ($aTmp2) {
-                    show_msg('<'.$value['aka_cn'].">已存在<br />\r\n");
-                    $row2['id'] = $aTmp2['id'];
-                    $r = $this->gaTools['mysqldb']->update('tmp_movie',$row2);
-                } else {
-                    $r = $this->gaTools['mysqldb']->save('tmp_movie',$row2);
+                $where2 = ' WHERE douban_id="' . $value['douban_id'].'" ';
+                if ($value['imdb_id']) {
+                    $where2 .= ' OR imdb_id="' . $value['imdb_id'].'"';
                 }
-                show_msg('<'.$value['aka_cn'].">过滤保存成功<br />\r\n");
-                die;
+                $aTmp2 = $this->gaTools['mysqldb']->get('SELECT * FROM movie '.$where2);
+                if ($aTmp2) {
+                    show_msg('<'.$row2['title'].">已存在<br />\r\n");
+                    // continue;
+                    $row2['id'] = $aTmp2['id'];
+                    $r = $this->gaTools['mysqldb']->update('movie',$row2);
+                } else {
+                    $r = $this->gaTools['mysqldb']->save('movie',$row2);
+                }
+                show_msg('<'.$row2['title'].">过滤保存成功<br />\r\n");
+                if (isset($aTmp[$key])) {
+                    unset($aTmp[$key]);
+                }
+                // die;
             }
         }
-        die;
+        // die;
         
     }
     
@@ -299,12 +333,16 @@ class get_movie_info_douban_imdb_agent
         $this->aConfig['html_charset'] = 'gbk';
         
         $this->aConfig['have'] = &get_config('citys_info');
-        $this->aConfig['tb_name'] = 'imdb';
+        $this->aConfig['tb_name'][0] = 'douban_tmp';
+        $this->aConfig['tb_name'][1] = 'imdb_cn';
+
+        $this->aConfig['apikey'] = array('06953f4549257b8213bfbdcfdb707286','005d6d7a8e4d9fdd0118486faae8df97', '014a0ae8b9bca19803de20ba2d35e4c8');
         
-        $this->aConfig['url_0_template']['con'] = 'http://api.douban.com/movie/subject/{@douban_id}?apikey=06953f4549257b8213bfbdcfdb707286';
-        $this->aConfig['url_0_template']['search_replace'] = array('{@douban_id}');
-        $this->aConfig['url_1_template']['con'] = 'http://api.douban.com/movie/subject/imdb/{@imdb_id}?apikey=06953f4549257b8213bfbdcfdb707286';
-        $this->aConfig['url_1_template']['search_replace'] = array('{@imdb_id}');
+        // $this->aConfig['url_0_template']['con'] = 'http://api.douban.com/movie/subject/{@douban_id}?apikey={06953f4549257b8213bfbdcfdb707286}';
+        $this->aConfig['url_template'][0]['con'] = 'http://api.douban.com/movie/subject/{@douban_id}?apikey={@apikey}';
+        $this->aConfig['url_template'][0]['search_replace'] = array('{@douban_id}','{@apikey}');
+        $this->aConfig['url_template'][1]['con'] = 'http://api.douban.com/movie/subject/imdb/{@imdb_id}?apikey={@apikey}';
+        $this->aConfig['url_template'][1]['search_replace'] = array('{@imdb_id}','{@apikey}');
         
         $this->aCommConfiger['url_url'] = 'url';
     }

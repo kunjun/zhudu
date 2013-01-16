@@ -47,7 +47,7 @@ class movie_tmp_tool_agent
 //			}
 //		}
 
-        
+        // select count(1) from movie WHERE douban_id != '' AND douban_image NOT LIKE '%movie-default%' AND year !='' AND year > 0
         $this->aScriptNeed['charset_of_getcon'] = 'UTF-8';
         // $url = remove_blank($this->aConfig['url_0_template']['con']);
         // $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], 1, $url);
