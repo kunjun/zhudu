@@ -5,6 +5,7 @@ Version: 1
  Effect: 
    Date: 
   Notes: ?space=10w&action=get_imdb_info&do=always&end=1
+  php ../index.php 10w get_imdb_info 1 gbk
 ********************************************************/
 class get_imdb_info_agent
 {
@@ -49,92 +50,69 @@ class get_imdb_info_agent
 
         $aArgv = $GLOBALS['argv'];
         $this->aParameter['start0'] = isset($aArgv[5]) ? $aArgv[5] : '1';
-        $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '97191';
+        $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '214296';
         
         $this->aScriptNeed['charset_of_getcon'] = 'UTF-8';
         $url = remove_blank($this->aConfig['url_0_template']['con']);
         show_msg("开始获取imdb数据.......<br />\r\n");
-        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,title,aka_cn,year FROM '.$this->aConfig['tb_name_0'].' WHERE id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].' AND imdb_id="" AND noin_imdb=0 ORDER BY id ASC');
-        $id = isset($aTmp[0]['id']) ? $aTmp[0]['id'] : '1';
+        $aTmp = $this->gaTools['mysqldb']->find('SELECT * FROM movie WHERE id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].' AND imdb_average="" ORDER BY id ASC');
+        $id = isset($aTmp[0]['id']) ? $aTmp[0]['id'] : '';
         show_msg("从id=“{$id}”开始.......<br />\r\n");
-//         echo count($aTmp);
-//         die;
-
-//         $row = array();
-//         $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], urlencode("盗梦空间"), $url);
-//         $sUrl = $this->aScriptNeed['url_url_0'];
-//         $row['mid'] = $value['id'];
-//         $row['url'] = $sUrl;
-//         $row['content'] = meclient($sUrl);
-//         $row['content'] = json_decode($row['content']);
-//         dump($row);
-//         die;
+        // echo count($aTmp);
+        // die;
 
         // dump($aTmp);
         if (!empty($aTmp)) {
             $aCollectionResult = array();
             foreach ($aTmp as $key => $value) {
+                unset($aTmp[$key]);
                 show_msg("id={$value['id']}.......");
-                $row = array();
                 $row2 = array();
-                $row3 = array();
-                $yg = '0';
-                if ($value['year']) {
-                    $yg = '1';
-                }
-                $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], array(urlencode($value['title']),$value['year'],$yg), $url);
+                $row2['id'] = $value['id'];
+                $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], array($value['imdb_id']), $url);
                 $sUrl = $this->aScriptNeed['url_url_0'];
-                $row['content'] = meclient($sUrl);
-                $contentTmp = json_decode($row['content']);
-                if ((!$contentTmp || isset($contentTmp->code)) && $value['aka_cn'] != '') {
-                    $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], array(urlencode($value['aka_cn']),$value['year'],$yg), $url);
-                    $sUrl = $this->aScriptNeed['url_url_0'];
-                    $row['content'] = meclient($sUrl);
-                    $contentTmp = json_decode($row['content']);
-                }
-                if (!$contentTmp || isset($contentTmp->code)) {
-                    $yg = '0';
-                    $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], array(urlencode($value['title']),$value['year'],$yg), $url);
-                    $sUrl = $this->aScriptNeed['url_url_0'];
-                    $row['content'] = meclient($sUrl);
-                    $contentTmp = json_decode($row['content']);
-                }
-                if ((!$contentTmp || isset($contentTmp->code)) && $value['aka_cn'] != '') {
-                    $yg = '0';
-                    $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], array(urlencode($value['aka_cn']),$value['year'],$yg), $url);
-                    $sUrl = $this->aScriptNeed['url_url_0'];
-                    $row['content'] = meclient($sUrl);
-                    $contentTmp = json_decode($row['content']);
-                }
-                if ($contentTmp == NULL) {
+                $sCon = meclient($sUrl);
+                $content = json_decode($sCon);
+                if ($content == NULL) {
                     show_msg("网络还没连上！！<br />\r\n");
                     die;
                 }
-                if (!$contentTmp || isset($contentTmp->code)) {
+                if (!$content || isset($content->code)) {
                     show_msg("title=".$value['title'].";aka_cn=".$value['aka_cn'].";mid=".$value['id'].";url=".$sUrl."<br />\r\n");
                     show_msg("尼玛！什么情况！！<br />\r\n");
-                    $rowTmp = array();
-                    $rowTmp['id'] = $value['id'];
-                    $rowTmp['noin_imdb'] = 1;
-                    $r = $this->gaTools['mysqldb']->update($this->aConfig['tb_name_0'],$rowTmp);
+                    $row2['imdb_num_raters'] = 0;
+                    $row2['imdb_average'] = 0;
+                    $this->gaTools['mysqldb']->update('movie',$row2);
                     continue;
                 }
-                $content = isset($contentTmp[0]) ? $contentTmp[0] : null;
 //                 echo $sUrl;
-//                 dump($content);
-//                 die;
+                // dump($content);
+                // die;
+                // if (isset($content->type) && $content->type != 'M') {
+                //     continue;
+                // }
                 if (!isset($content->imdb_id)) {
                     show_msg("title=".$value['title'].";aka_cn=".$value['aka_cn'].";mid=".$value['id'].";url=".$sUrl);
                     show_msg("尼玛！imdb_id没有！！<br />\r\n");
-                    var_dump($row['content']);
+                    var_dump($sCon);
                     die;
+                }
+                if (isset($content->rating_count)) {
+                    $row2['imdb_num_raters'] = $content->rating_count;
+                } else {
+                    $row2['imdb_num_raters'] = 0;
+                }
+                if (isset($content->rating)) {
+                    $row2['imdb_average'] = $content->rating;
+                } else {
+                    $row2['imdb_average'] = 0;
+                }
+                if (isset($value['douban_id']) && $value['douban_id']) {
+                    $this->gaTools['mysqldb']->escape_row($row2);
+                    $this->gaTools['mysqldb']->update('movie',$row2);
+                    show_msg("电影信息已经有，只更新评分<br />\r\n");
                     continue;
                 }
-                $row3['mid'] = $row['mid'] = $value['id'];
-                $row3['url'] = $row['url'] = $sUrl;
-                $row['imdb_id'] = $content->imdb_id;
-                
-                $row2['id'] = $value['id'];
                 $row2['updated_at'] = time();
                 if (isset($content->title)) {
                     $row2['title'] = $content->title;
@@ -145,17 +123,8 @@ class get_imdb_info_agent
                 if (isset($content->year)) {
                     $row2['year'] = $content->year;
                 }
-                if (isset($content->rating_count)) {
-                    $row2['imdb_num_raters'] = $content->rating_count;
-                }
-                if (isset($content->rating)) {
-                    $row2['imdb_average'] = $content->rating;
-                }
                 if (isset($content->plot)) {
                     $row2['summary'] = $content->plot;
-                }
-                if (isset($content->imdb_id)) {
-                    $row2['imdb_id'] = $content->imdb_id;
                 }
                 if (isset($content->country)) {
                     if (!empty($content->country)) {
@@ -189,17 +158,8 @@ class get_imdb_info_agent
                             $row2['cast'] = substr($actors,0,-3);
                         }
                     }
-                }
-                if (isset($content->directors)) {
-                    if (!empty($content->directors)) {
-                        $directors = "";
-                        foreach ($content->directors as $directors_k=>$directors_v) {
-                            $directors .= $directors_v." / ";
-                        }
-                        if ($directors) {
-                            $row2['writer'] = substr($directors,0,-3);
-                        }
-                    }
+                } else {
+                    $row2['cast'] = '';
                 }
                 if (isset($content->directors)) {
                     if (!empty($content->directors)) {
@@ -256,94 +216,54 @@ class get_imdb_info_agent
                         }
                     }
                 }
-                $toDoubanUrl = "http://api.douban.com/movie/subject/imdb/".$content->imdb_id."?apikey=06953f4549257b8213bfbdcfdb707286";
-                $doubanContent = meclient($toDoubanUrl);
-                $domCon = str_get_html($doubanContent);
-                $row3['content'] = $doubanContent;
-                $dom = $domCon->find("id",0);
-                if ($dom) {
-                    $str = $dom->plaintext;
-                    if (preg_match("/\/(\d+)$/",$str,$arr)) {
-                        $row3['douban_id'] = $row2['douban_id'] = $arr[1];
-                    }
+                if (!isset($row2['title'])) {
+                    $row2['title'] = '';
                 }
-                
-                $dom = $domCon->find("db:attribute[name=website]",0);
-                if ($dom) {
-                    $row2['website'] = $dom->plaintext;
+                if (!isset($row2['pubdate'])) {
+                    $row2['pubdate'] = '';
                 }
-                $dom = $domCon->find("link[rel=image]",0);
-                if ($dom) {
-                    $row2['douban_image'] = $dom->href;
+                if (!isset($row2['year'])) {
+                    $row2['year'] = '';
                 }
-                $dom = $domCon->find("db:attribute[name=pubdate]");
-                if ($dom) {
-                    $pubdates = "";
-                    foreach ($dom as $k_k=>$v_v) {
-                        $pubdates .= $v_v->plaintext . ' / ';
-                    }
-                    if ($pubdates) {
-                        $row2['pubdate'] = substr($pubdates,0,-3);
-                    }
+                if (!isset($row2['summary'])) {
+                    $row2['summary'] = '';
                 }
-                if ((!isset($row2['summary']) || $row2['summary'] == '')) {
-                    $dom = $domCon->find("summary",0);
-                    if ($dom) {
-                        $row2['summary'] = $dom->plaintext;
-                    }
+                if (!isset($row2['country'])) {
+                    $row2['country'] = '';
                 }
-                $dom = $domCon->find("db:tag");
-                if ($dom) {
-                    $tags = "";
-                    foreach ($dom as $k_k=>$v_v) {
-                        $tags .= $v_v->name . '('.$v_v->count.')' . ' / ';
-                    }
-                    if ($pubdates) {
-                        $row2['tag'] = substr($tags,0,-3);
-                    }
+                if (!isset($row2['aka'])) {
+                    $row2['aka'] = '';
                 }
-                $dom = $domCon->find("gd:rating",0);
-                if ($dom) {
-                    $row2['douban_average'] = $dom->average;
-                    $row2['douban_num_raters'] = $dom->numraters;
+                if (!isset($row2['cast'])) {
+                    $row2['cast'] = '';
                 }
-                $dom = $domCon->find("author name",0);
-                if ($dom) {
-                    $row2['author'] = $dom->plaintext;
+                if (!isset($row2['director'])) {
+                    $row2['director'] = '';
                 }
-                $domCon->__destruct();
-                
-//                 dump($row);
-//                 echo '----------------------------';
-//                 dump($row2);
-//                 die;
-                
-                $this->gaTools['mysqldb']->escape_row($row);
-                $aTmp2 = $this->gaTools['mysqldb']->get('SELECT * FROM '.$this->aConfig['tb_name'] . ' WHERE mid=' . $value['id']);
-                if ($aTmp2) {
-                    $row['id'] = $aTmp2['id'];
-                    $r = $this->gaTools['mysqldb']->update($this->aConfig['tb_name'],$row);
-                } else {
-                    $r = $this->gaTools['mysqldb']->save($this->aConfig['tb_name'],$row);
+                if (!isset($row2['writer'])) {
+                    $row2['writer'] = '';
                 }
+                if (!isset($row2['movie_duration'])) {
+                    $row2['movie_duration'] = '';
+                }
+                if (!isset($row2['language'])) {
+                    $row2['language'] = '';
+                }
+                if (!isset($row2['movie_type'])) {
+                    $row2['movie_type'] = '';
+                }
+                if (!isset($row2['aka_cn'])) {
+                    $row2['aka_cn'] = '';
+                }
+                // dump($row2);
+                // die;
                 
                 $this->gaTools['mysqldb']->escape_row($row2);
-                $r = $this->gaTools['mysqldb']->update($this->aConfig['tb_name_0'],$row2);
-                
-                $this->gaTools['mysqldb']->escape_row($row3);
-                $aTmp2 = $this->gaTools['mysqldb']->get('SELECT * FROM '.$this->aConfig['tb_name_1'] . ' WHERE mid=' . $value['id']);
-                if ($aTmp2) {
-                    $row3['id'] = $aTmp2['id'];
-                    $r = $this->gaTools['mysqldb']->update($this->aConfig['tb_name_1'],$row3);
-                } else {
-                    $r = $this->gaTools['mysqldb']->save($this->aConfig['tb_name_1'],$row3);
-                }
+                $this->gaTools['mysqldb']->update('movie',$row2);
                 show_msg("过滤保存成功<br />\r\n");
-//                 die;
+                // die;
             }
         }
-        die;
-        
     }
     
     private function filter()
@@ -490,8 +410,8 @@ class get_imdb_info_agent
         $this->aConfig['tb_name_1'] = 'douban';
         
         //mtime 彩色=433
-        $this->aConfig['url_0_template']['con'] = 'http://imdbapi.org/?title={@title}&type=json&plot=full&episode=1&limit=1&year={@year}&yg={@yg}&mt=none&lang=zh-CN&offset=&aka=simple&release=simple';
-        $this->aConfig['url_0_template']['search_replace'] = array('{@title}','{@year}','{@yg}');
+        $this->aConfig['url_0_template']['con'] = 'http://imdbapi.org/?id={@imdb_id}&type=json&plot=simple&episode=1&lang=zh-CN&aka=simple&release=simple&business=0&tech=0';
+        $this->aConfig['url_0_template']['search_replace'] = array('{@imdb_id}');
         $this->aConfig['url_0']['p_total'] = 1;
 
         

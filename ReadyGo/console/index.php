@@ -65,10 +65,11 @@ define('DEFAULT_LANGEAGE_FILENAME','main'); #默认读取的语言包的文件�
 
 define('UNAUTHORIZED_ACCESS', '非法访问！！！');
 
-ini_set('include_path',ini_get('include_path').':LANGUAGE_PATH');
-ini_set('include_path',ini_get('include_path').':CONFIG_PATH');
-ini_set('include_path',ini_get('include_path').':LIBS_PATH');
-ini_set('include_path',ini_get('include_path').':TOOLS_PATH');
+ini_set('include_path',ini_get('include_path').';'.LANGUAGE_PATH.';'.CONFIG_PATH.';'.LIBS_PATH.';'.TOOLS_PATH);
+// ini_set('include_path',ini_get('include_path').';'.CONFIG_PATH);
+// ini_set('include_path',ini_get('include_path').';'.LIBS_PATH);
+// ini_set('include_path',ini_get('include_path').';'.TOOLS_PATH);
+// echo ini_get('include_path');die;
 
 #脚本计时开始
 $mtime = explode(' ', microtime());

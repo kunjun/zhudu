@@ -5,9 +5,9 @@ Version: 1
  Effect: 
    Date: 
   Notes: ?space=10w&action=movie_tmp_tool&do=always&end=1
-  php ../index.php 10w movie_tmp_tool 1 gbk
+  php ../index.php 10w movie_tmp_tool2 1 gbk
 ********************************************************/
-class movie_tmp_tool_agent
+class movie_tmp_tool2_agent
 {
     private $aConfig = array();
     private $aCommConfiger = array();
@@ -59,52 +59,37 @@ class movie_tmp_tool_agent
         $this->aParameter['start0'] = isset($aArgv[5]) ? $aArgv[5] : '1';
         $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '214296';
 
-        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,aka_cn,douban_id FROM movie WHERE id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].' AND aka_cn!="" AND mtime_id!="" ORDER BY id ASC');
+        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,mid FROM movie_show WHERE id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].' ORDER BY id ASC');
         $id = isset($aTmp[0]['id']) ? $aTmp[0]['id'] : '';
         show_msg("从id=“{$id}”开始.......<br />\r\n");
 
         if (!empty($aTmp)) {
             $aCollectionResult = array();
-            foreach ($aTmp as $key => $value) {
-                unset($aTmp[$key]);
-                show_msg("id={$value['id']}.......");
-                $row = array();
-                $row['id'] = $value['id'];
-                $row['douban_id'] = $value['douban_id'];
-                $row['aka_cn'] = $value['aka_cn'];
-                $aTmp2 = $this->gaTools['mysqldb']->load('douban', $row['douban_id'], 'douban_id');
-                if ($aTmp2) {
-                    $domCon = str_get_html($aTmp2['content']);
-                    $aka_cn = '';
-                    $title = '';
-                    $dom = $domCon->find("db:attribute[lang=zh_CN]",0);
-                    if ($dom) {
-                        if (isset($dom->name) && $dom->name == 'aka') {
-                            $aka_cn = $dom->plaintext;
-                        }
-                    }
-                    $dom = $domCon->find("title",0);
-                    if ($dom) {
-                        $title = $dom->plaintext;
-                    }
-                    if ($row['aka_cn'] == $aka_cn) {
-                        show_msg("相等ok!!<br />\r\n");
-                        continue;
-                    } else if ($row['aka_cn'] != $title) {
-                        $row['mtime_id'] = '';
-                        $row['aka_cn'] = $aka_cn;
-                    } else if ($row['aka_cn'] == $title) {
-                        $row['aka_cn'] = '';
-                    }
-                    $this->gaTools['mysqldb']->escape_row($row);
-                    $this->gaTools['mysqldb']->update('movie', $row);
-                    $row2 = array();
-                    $row2['mid'] = $row['id'];
-                    $row2['aka_cn'] = $row['aka_cn'];
-                    $this->gaTools['mysqldb']->update('movie_show', $row2, 'mid');
-                    show_msg("yo--");
-                    $domCon->__destruct();
+            foreach ($aTmp as $key2 => $value2) {
+                unset($aTmp[$key2]);
+                show_msg("id={$value2['id']}.......");
+                $value = $this->gaTools['mysqldb']->load('movie', $value2['mid']);
+                $average = 0;
+                if ($value['mtime_average'] <= 0 AND $value['douban_average'] > 0 AND $value['imdb_average'] > 0) {
+                    $average = ($value['douban_average']+$value['imdb_average'])/2;
+                } else if ($value['imdb_average'] <= 0 AND $value['douban_average'] > 0 AND $value['mtime_average'] > 0) {
+                    $average = ($value['douban_average']+$value['mtime_average'])/2;
+                } else if ($value['douban_average'] <= 0 AND $value['imdb_average'] > 0 AND $value['mtime_average'] > 0) {
+                    $average = ($value['imdb_average']+$value['mtime_average'])/2;
+                } else if ($value['douban_average'] > 0 AND $value['imdb_average'] > 0 AND $value['mtime_average'] > 0) {
+                    $average = ($value['douban_average'] + $value['imdb_average']+$value['mtime_average'])/3;
+                } else {
+                    $average = $value['douban_average'];
                 }
+                $row = array();
+                $row['id'] = $value2['id'];
+                $row['average'] = number_format($average, 1);
+                $row['num_raters'] = $value['douban_num_raters']+$value['mtime_num_raters']+$value['imdb_num_raters'];
+                $this->gaTools['mysqldb']->update('movie_show', $row);
+                $row2 = array();
+                $row2['id'] = $value2['mid'];
+                $row2['weights'] = 1;
+                $this->gaTools['mysqldb']->update('movie', $row2);
                 show_msg("ok!!<br />\r\n");
             }
         }
