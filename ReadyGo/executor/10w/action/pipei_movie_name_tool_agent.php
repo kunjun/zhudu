@@ -54,7 +54,7 @@ class pipei_movie_name_tool_agent
             die;
         }
 
-        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,title FROM online_video WHERE id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].' ORDER BY id ASC');
+        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,title FROM online_video_tmp WHERE id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].' ORDER BY id ASC');
         $id = isset($aTmp[0]['id']) ? $aTmp[0]['id'] : '';
         show_msg("从id=“{$id}”开始.......<br />\r\n");
 
@@ -97,8 +97,10 @@ class pipei_movie_name_tool_agent
                 // dump($tmp);
                 // die;
                 // show_msg($title);
+                $title = '死神来了';
                 $result = $s->Query($title,'movie_name');
-                // dump($result);
+                dump($result['total']);
+//                 die;
                 if (isset($result['matches']) && !empty($result['matches'])) {
                     $i = 0;
                     $f_this_id = '';
@@ -112,29 +114,30 @@ class pipei_movie_name_tool_agent
                             break;
                         }
                         $row = $this->gaTools['mysqldb']->load('movie', $k_k);
-                        if ($i == 0) {
-                            $f_this_id = $row['id'];
-                            $f_this_title = $row['title'];
-                            $f_this_aka_cn = $row['aka_cn'];
-                        }
-                        // show_msg($row['aka_cn'].'::'.$row['country'].'--'.$guojia);
-                        // var_dump(strpos($row['country'],$guojia));
-                        // continue;
-                        if ($guojia != '') {
-                            if (strpos($row['country'],$guojia) === false) {
-                                continue;
-                            }
-                        }
-                        if ($row['title'] == $v['title'] || $row['aka_cn'] == $v['title']) {
-                            // show_msg($row['title'].'--'.$row['aka_cn']."<br />\r\n");
-                            $this_id = $row['id'];
-                            $this_title = $row['title'];
-                            $this_aka_cn = $row['aka_cn'];
-                            break;
-                        }
-                        // show_msg($row['title'].'--'.$row['aka_cn']."<br />\r\n");
+//                         if ($i == 0) {
+//                             $f_this_id = $row['id'];
+//                             $f_this_title = $row['title'];
+//                             $f_this_aka_cn = $row['aka_cn'];
+//                         }
+//                         // show_msg($row['aka_cn'].'::'.$row['country'].'--'.$guojia);
+//                         // var_dump(strpos($row['country'],$guojia));
+//                         // continue;
+//                         if ($guojia != '') {
+//                             if (strpos($row['country'],$guojia) === false) {
+//                                 continue;
+//                             }
+//                         }
+//                         if ($row['title'] == $v['title'] || $row['aka_cn'] == $v['title']) {
+//                             // show_msg($row['title'].'--'.$row['aka_cn']."<br />\r\n");
+//                             $this_id = $row['id'];
+//                             $this_title = $row['title'];
+//                             $this_aka_cn = $row['aka_cn'];
+//                             break;
+//                         }
+                        show_msg($row['title'].'--'.$row['aka_cn']."<br />\r\n");
                         $i++;
                     }
+                    die;
                     if ($guojia != '') {
                         continue;
                     }
