@@ -59,16 +59,16 @@ class movie_tmp_tool2_agent
         $this->aParameter['start0'] = isset($aArgv[5]) ? $aArgv[5] : '1';
         $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '214296';
 
-        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,mid FROM movie_show WHERE id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].' ORDER BY id ASC');
+        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,douban_average,mtime_average,imdb_average,douban_num_raters,mtime_num_raters,imdb_num_raters FROM movie WHERE id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].' ORDER BY id ASC');
         $id = isset($aTmp[0]['id']) ? $aTmp[0]['id'] : '';
         show_msg("从id=“{$id}”开始.......<br />\r\n");
 
         if (!empty($aTmp)) {
             $aCollectionResult = array();
-            foreach ($aTmp as $key2 => $value2) {
-                unset($aTmp[$key2]);
-                show_msg("id={$value2['id']}.......");
-                $value = $this->gaTools['mysqldb']->load('movie', $value2['mid']);
+            foreach ($aTmp as $key => $value) {
+                unset($aTmp[$key]);
+                show_msg("id={$value['id']}.......");
+                // $value = $this->gaTools['mysqldb']->load('movie', $value2['mid']);
                 $average = 0;
                 if ($value['mtime_average'] <= 0 AND $value['douban_average'] > 0 AND $value['imdb_average'] > 0) {
                     $average = ($value['douban_average']+$value['imdb_average'])/2;
@@ -81,14 +81,16 @@ class movie_tmp_tool2_agent
                 } else {
                     $average = $value['douban_average'];
                 }
-                $row = array();
-                $row['id'] = $value2['id'];
-                $row['average'] = number_format($average, 1);
-                $row['num_raters'] = $value['douban_num_raters']+$value['mtime_num_raters']+$value['imdb_num_raters'];
-                $this->gaTools['mysqldb']->update('movie_show', $row);
+                // $row = array();
+                // $row['id'] = $value2['id'];
+                // $row['average'] = number_format($average, 1);
+                // $row['num_raters'] = $value['douban_num_raters']+$value['mtime_num_raters']+$value['imdb_num_raters'];
+                // $this->gaTools['mysqldb']->update('movie_show', $row);
                 $row2 = array();
-                $row2['id'] = $value2['mid'];
-                $row2['weights'] = 1;
+                $row2['id'] = $value['id'];
+                $row2['average'] = number_format($average, 1);
+                $row2['num_raters'] = $value['douban_num_raters']+$value['mtime_num_raters']+$value['imdb_num_raters'];
+                // $row2['weights'] = 1;
                 $this->gaTools['mysqldb']->update('movie', $row2);
                 show_msg("ok!!<br />\r\n");
             }
