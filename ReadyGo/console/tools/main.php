@@ -500,6 +500,43 @@ function pictype ( $url )
 	} 
 
 /**
+ * Returns the url query as associative array
+ *
+ * @param    string    query
+ * @return    array    params
+ */
+function convertUrlQuery($query)
+{
+	if (empty($query)) {
+		return null;
+	}
+    $queryParts = explode('&', $query);
+     
+    $params = array();
+    if (!empty($queryParts)) {
+		foreach ($queryParts as $param)
+	    {
+	        $item = explode('=', $param);
+	        if (count($item) == 2) {
+	        	$params[$item[0]] = $item[1];
+	        }
+	    }
+    }
+    return $params;
+}
+
+function getUrlQuery($array_query)
+{
+    $tmp = array();
+    foreach($array_query as $k=>$param)
+    {
+        $tmp[] = $k.'='.$param;
+    }
+    $params = implode('&',$tmp);
+    return $params;
+}
+
+/**
 * 输出变量的内容，通常用于调试
 *
 * @package Core
