@@ -4,8 +4,8 @@
 Version: 1
  Effect: 
    Date: 
-  Notes: ?space=10w&action=scan_seed_in_google&do=always&end=1
-  php ../index.php 10w scan_seed_in_google 1 gbk
+  Notes: ?space=10w&action=scan_seed_in_google&do=always&from=browser&start=1&end=2&plan=1
+  php ../index.php 10w scan_seed_in_google 1 gbk 1 2 1
 ********************************************************/
 class scan_seed_in_google_agent
 {
@@ -33,26 +33,33 @@ class scan_seed_in_google_agent
     {
         ####################################################
         $this->aParameter['do'] = isset($this->aParameter['do']) ? $this->aParameter['do'] : '';
-        $this->aParameter['start0'] = isset($this->aParameter['start0']) ? $this->aParameter['start0'] : 1;
-        $this->aParameter['start1'] = isset($this->aParameter['start1']) ? $this->aParameter['start1'] : 1;
-        $this->aParameter['end'] = isset($this->aParameter['end']) ? $this->aParameter['end'] : '';
+        $this->aParameter['from'] = isset($this->aParameter['from']) ? $this->aParameter['from'] : 'cli';
+        
+        if ($this->aParameter['from'] == 'cli') {
+            $aArgv = $GLOBALS['argv'];
+            $this->aParameter['start'] = isset($aArgv[5]) ? $aArgv[5] : '1';
+            $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '3';
+            $this->aParameter['plan'] = isset($aArgv[7]) ? $aArgv[7] : '1';
+        } else {
+            $this->aParameter['start'] = isset($this->aParameter['start']) ? $this->aParameter['start'] : '1';
+            $this->aParameter['end'] = isset($this->aParameter['end']) ? $this->aParameter['end'] : '3';
+            $this->aParameter['plan'] = isset($this->aParameter['plan']) ? $this->aParameter['plan'] : '1';
+        }
         ####################################################
-
-        $aArgv = $GLOBALS['argv'];
-        $this->aParameter['start0'] = isset($aArgv[5]) ? $aArgv[5] : '1';
-        // $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '214296';
-        $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '3';
-        // $this->aParameter['start0'] = isset($aArgv[5]) ? $aArgv[5] : '109362';
-        // $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '109363';
-        // and id>='.$this->aParameter['start0'].' AND id<'.$this->aParameter['end'].'
-        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,title,aka_cn,director,cast,country,year,imdb_id,weights,updated_at,plan FROM movie WHERE id=1 ORDER BY id ASC');
+        
+        $plan = $this->aParameter['plan'] != '' ? $this->aParameter['plan'] : $this->aConfig['plan'];
+        // and id>='.$this->aParameter['start'].' AND id<'.$this->aParameter['end'].'
+        $aTmp = $this->gaTools['mysqldb']->find('SELECT id,title,aka_cn,director,cast,country,year,imdb_id,weights,updated_at,plan FROM movie WHERE id>='.$this->aParameter['start'].' AND id<'.$this->aParameter['end'].' AND plan<'.$plan.' ORDER BY id ASC');
         $id = isset($aTmp[0]['id']) ? $aTmp[0]['id'] : '';
         show_msg("从id=“{$id}”开始.......<br />\r\n");
         // echo base64_decode('AFQjCNGg8PrGh-CR94WvZFZUadQimpSzqA');
         // die;
+        
 
         if (!empty($aTmp)) {
-            $url = remove_blank($this->aConfig['url_0_template']['con']);
+            $max_page_total = $this->aConfig['url']['max_page_total'];
+            $google_size = $this->aConfig['url']['google_size'];
+            $url = remove_blank($this->aConfig['url_template']['con']);
             $sites_0 = $this->aConfig['sites_may-filter_in-title_ok'];
             $sites_1 = $this->aConfig['sites_notmay-filter_notin-title_ok'];
             $or = $this->aConfig['or'];
@@ -62,26 +69,26 @@ class scan_seed_in_google_agent
                 die;
             }
             $aCollectionResult = array();
-            foreach ($aTmp as $key => $value) {
-                unset($aTmp[$key]);
-                show_msg("id={$value['id']}...");
-                $title = trim($value['title']);
-                $aka_cn = trim($value['aka_cn']);
-                $year = trim($value['year']);
-                $imdb_id = trim($value['imdb_id']);
+            foreach ($aTmp as $k => $v) {
+                unset($aTmp[$k]);
+                show_msg("id={$v['id']}...");
+                $title = trim($v['title']);
+                $aka_cn = trim($v['aka_cn']);
+                $year = trim($v['year']);
+                $imdb_id = trim($v['imdb_id']);
                 $country = "";
-                if ($value['country']) {
-                    $tmp = split('/', $value['country']);
+                if ($v['country']) {
+                    $tmp = split('/', $v['country']);
                     $country = trim($tmp[0]);
                 }
                 $director = "";
-                if ($value['director']) {
-                    $tmp = split('/', $value['director']);
+                if ($v['director']) {
+                    $tmp = split('/', $v['director']);
                     $director = trim($tmp[0]);
                 }
                 $cast = "";
-                if ($value['cast']) {
-                    $tmp = split('/', $value['cast']);
+                if ($v['cast']) {
+                    $tmp = split('/', $v['cast']);
                     $cast = trim($tmp[0]);
                 }
                 $q = '';
@@ -157,9 +164,13 @@ class scan_seed_in_google_agent
                 }
                 $keyword_0 = $sites_0.$and.$title_in_factor.$main_filter_factor.$fringe_filter_factor;
                 $keyword_1 = $sites_1.$and.$title_notin_factor.$main_filter_factor.$fringe_filter_factor;
-                // show_msg($keyword_0."\r\n");
-                // show_msg($keyword_1."\r\n");
-                $sUrl = str_replace($this->aConfig['url_0_template']['search_replace'], array(urlencode($keyword_0), '0'), $url);
+                // show_msg($kword_0."\r\n");
+                // show_msg($kword_1."\r\n");
+
+                //准备抓
+                $sUrl = str_replace($this->aConfig['url_template']['search_replace'], array(urlencode($keyword_0), '0'), $url);
+                echo $sUrl;
+                dump($v);
                 $sCon = meclient($sUrl);
                 // $sCon = "";
                 $domCon = str_get_dom($sCon);
@@ -168,7 +179,7 @@ class scan_seed_in_google_agent
                 // }
                 $dom = $domCon->find("#resultStats", 0);
                 if (empty($dom)) {
-                    show_msg("id=".$value['id']."::'".$sUrl."'"."\r\n");
+                    show_msg("id=".$v['id']."::'".$sUrl."'"."\r\n");
                     die;
                 }
                 /*
@@ -183,21 +194,33 @@ class scan_seed_in_google_agent
                 // resultStats
                 // echo $sCon;
                 
+                //页面总数默认只有1页
+                $page_total = 1;
                 if ($result_stats == '') {
                     //没找到种子
-                    show_msg("id=".$value['id']."::'".$sUrl."'"."\r\n");
+                    show_msg("id=".$v['id']."::'".$sUrl."'"."\r\n");
                     $row = array();
-                    $row['id'] = $value['id'];
+                    $row['id'] = $v['id'];
                     $row['updated_at'] = time();
-                    if ($value['weights'] > 0) {
-                        $row['weights'] = $value['weights']-1;
+                    if ($v['weights'] > 0) {
+                        $row['weights'] = $v['weights']-1;
                     }
-                    $row['plan'] = $value['plan']+1;
+                    $row['plan'] = $plan + $this->aConfig['plan_special'];
                     dump($row);
                     // $this->gaTools['mysqldb']->update('movie', $row);
                     die('why');
                     continue;
+                } else {
+                    if (preg_match("/(\d+?) results/", $result_stats, $arr)) {
+                        $data_total =  $arr[1];
+                        $page_total = ceil($data_total*1.0 / $google_size);
+                        if ($page_total > $max_page_total) {
+                            $page_total = $max_page_total;
+                        }
+                    }
                 }
+                echo "页面总数::".$page_total;
+                die;
                 $dom = $domCon->find("#search ol", 0);
                 if (empty($dom)) {
                     die('why');
@@ -232,9 +255,9 @@ class scan_seed_in_google_agent
 
                 die;
                 $row2 = array();
-                $row2['id'] = $value['id'];
+                $row2['id'] = $v['id'];
                 $row2['average'] = number_format($average, 1);
-                $row2['num_raters'] = $value['douban_num_raters']+$value['mtime_num_raters']+$value['imdb_num_raters'];
+                $row2['num_raters'] = $v['douban_num_raters']+$v['mtime_num_raters']+$v['imdb_num_raters'];
                 // $row2['weights'] = 1;
                 $this->gaTools['mysqldb']->update('movie', $row2);
                 show_msg("ok!!<br />\r\n");
@@ -294,9 +317,13 @@ class scan_seed_in_google_agent
         $this->aConfig['html_charset'] = 'gbk';
 
         // $this->aConfig['url_0_template']['con'] = 'http://www.google.com.hk/search?oe=utf8&hl=zh-CN&ie=utf8&source=uds&start=0&safe=strict&filter=0&q={@q}&start={@start}';
-        $this->aConfig['url_0_template']['con'] = 'http://www.google.com.hk/search?oe=utf8&hl=en&ie=utf8&source=uds&start=0&safe=strict&filter=0&q={@q}&start={@start}';
-        $this->aConfig['url_0_template']['search_replace'] = array('{@q}', '{@start}');
-        $this->aConfig['url_0']['p_total'] = 10;
+        $this->aConfig['url_template']['con'] = 'http://www.google.com.hk/search?oe=utf8&hl=en&ie=utf8&source=uds&start=0&safe=strict&filter=0&q={@q}&start={@start}';
+        $this->aConfig['url_template']['search_replace'] = array('{@q}', '{@start}');
+        $this->aConfig['url']['max_page_total'] = 10;
+        $this->aConfig['url']['google_size'] = 10;
+
+        $this->aConfig['plan'] = 1;
+        $this->aConfig['plan_special'] = 10000;
 
         // echo urldecode('%68%74%74%70%3a%2f%2f%77%77%77%2e%69%63%69%6c%69%2e%63%6f%6d%2f%65%6d%75%6c%65%2f%64%6f%77%6e%6c%6f%61%64%2f%31%32%35%37%35%32');
         // die;
