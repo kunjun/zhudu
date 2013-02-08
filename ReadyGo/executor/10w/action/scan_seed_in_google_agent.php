@@ -4,8 +4,8 @@
 Version: 1
  Effect: 
    Date: 
-  Notes: ?space=10w&action=scan_seed_in_google&do=always&from=browser&start=1&end=2&plan=1
-  php ../index.php 10w scan_seed_in_google 1 gbk 1 2 1
+  Notes: ?space=10w&action=scan_seed_in_google&do=always&from=browser&start=1&end=2&plan=1&do_what=seed
+  php ../index.php 10w scan_seed_in_google 1 gbk 1 214296 1
 ********************************************************/
 class scan_seed_in_google_agent
 {
@@ -40,31 +40,35 @@ class scan_seed_in_google_agent
             $this->aParameter['start'] = isset($aArgv[5]) ? $aArgv[5] : '1';
             $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '3';
             $this->aParameter['plan'] = isset($aArgv[7]) ? $aArgv[7] : '1';
+            $this->aParameter['do_what'] = isset($aArgv[8]) && $aArgv[8] != '' && isset($this->aConfig[$this->aParameter['do_what']]) ? $aArgv[8] : 'seed';
         } else {
             $this->aParameter['start'] = isset($this->aParameter['start']) ? $this->aParameter['start'] : '1';
             $this->aParameter['end'] = isset($this->aParameter['end']) ? $this->aParameter['end'] : '3';
             $this->aParameter['plan'] = isset($this->aParameter['plan']) ? $this->aParameter['plan'] : '1';
+            $this->aParameter['do_what'] = isset($this->aParameter['do_what']) && $this->aParameter['do_what'] != '' && isset($this->aConfig[$this->aParameter['do_what']]) ? $this->aParameter['do_what'] : 'seed';
         }
         ####################################################
         
         $plan = $this->aParameter['plan'] != '' ? $this->aParameter['plan'] : $this->aConfig['plan'];
+        // die($plan);
         // and id>='.$this->aParameter['start'].' AND id<'.$this->aParameter['end'].'
         $aTmp = $this->gaTools['mysqldb']->find('SELECT id,title,aka_cn,director,cast,country,year,imdb_id,weights,updated_at,plan FROM movie WHERE id>='.$this->aParameter['start'].' AND id<'.$this->aParameter['end'].' AND plan<'.$plan.' ORDER BY id ASC');
         $id = isset($aTmp[0]['id']) ? $aTmp[0]['id'] : '';
         show_msg("从id=“{$id}”开始.......<br />\r\n");
         // echo base64_decode('AFQjCNGg8PrGh-CR94WvZFZUadQimpSzqA');
         // die;
-        
+        // dump($this->aConfig[$this->aParameter['do_what']]);
+        // die;
 
         if (!empty($aTmp)) {
             $max_page_total = $this->aConfig['url']['max_page_total'];
             $google_size = $this->aConfig['url']['google_size'];
             $url = remove_blank($this->aConfig['url_template']['con']);
-            $sites_0 = $this->aConfig['sites_may-filter_in-title_ok'];
-            $sites_1 = $this->aConfig['sites_notmay-filter_notin-title_ok'];
+            $sites_0 = $this->aConfig[$this->aParameter['do_what']]['sites_may-filter_in-title_ok'];
+            $sites_1 = $this->aConfig[$this->aParameter['do_what']]['sites_notmay-filter_notin-title_ok'];
             $or = $this->aConfig['or'];
             $and = $this->aConfig['and'];
-            if ($sites_0 == '' || $sites_1 == '') {
+            if ($sites_0 == '' && $sites_1 == '') {
                 show_msg("啥米弄无？\r\n");
                 die;
             }
@@ -147,7 +151,17 @@ class scan_seed_in_google_agent
                 //     $fringe_filter_factor .= '"'.$country.'"';
                 // }
                 if ($title_in_factor == '') {
-                    countine;
+                    $row = array();
+                    $row['id'] = $v['id'];
+                    $row['updated_at'] = time();
+                    if ($v['weights'] > 0) {
+                        $row['weights'] = $v['weights']-1;
+                    }
+                    $row['plan'] = $plan + $this->aConfig['plan_special_2'];
+                    // dump($row);
+                    $this->gaTools['mysqldb']->update('movie', $row);
+                    // die('why');
+                    continue;
                 }
                 $title_in_factor = '('.$title_in_factor.')';
                 $title_notin_factor = '('.$title_notin_factor.')';
@@ -164,14 +178,17 @@ class scan_seed_in_google_agent
                 }
                 $keyword_0 = $sites_0.$and.$title_in_factor.$main_filter_factor.$fringe_filter_factor;
                 $keyword_1 = $sites_1.$and.$title_notin_factor.$main_filter_factor.$fringe_filter_factor;
-                // show_msg($kword_0."\r\n");
-                // show_msg($kword_1."\r\n");
+                // show_msg($keyword_0."\r\n");
+                // show_msg($keyword_1."\r\n");
+                // die;
 
                 //准备抓
                 $sUrl = str_replace($this->aConfig['url_template']['search_replace'], array(urlencode($keyword_0), '0'), $url);
-                echo $sUrl;
-                dump($v);
+                // echo $sUrl;
+                // dump($v);
                 $sCon = meclient($sUrl);
+                // echo $sCon;
+                // die;
                 // $sCon = "";
                 $domCon = str_get_dom($sCon);
                 // if (empty($domCon)) {
@@ -206,9 +223,9 @@ class scan_seed_in_google_agent
                         $row['weights'] = $v['weights']-1;
                     }
                     $row['plan'] = $plan + $this->aConfig['plan_special'];
-                    dump($row);
-                    // $this->gaTools['mysqldb']->update('movie', $row);
-                    die('why');
+                    // dump($row);
+                    $this->gaTools['mysqldb']->update('movie', $row);
+                    // die('why');
                     continue;
                 } else {
                     if (preg_match("/(\d+?) results/", $result_stats, $arr)) {
@@ -218,20 +235,39 @@ class scan_seed_in_google_agent
                             $page_total = $max_page_total;
                         }
                     }
+                    $row = array();
+                    $row['id'] = $v['id'];
+                    $row['updated_at'] = time();
+                    if ($v['weights'] > 0) {
+                        $row['weights'] = $v['weights']+1;
+                    }
+                    $row['is_zhong'] = 1;
+                    $row['plan'] = $plan;
+                    $this->gaTools['mysqldb']->update('movie', $row);
                 }
-                echo "页面总数::".$page_total;
-                die;
+                // echo "页面总数::".$page_total;
+                // die;
                 $dom = $domCon->find("#search ol", 0);
                 if (empty($dom)) {
-                    die('why');
+                    show_msg("id=".$v['id']."::'".$sUrl."'"."\r\n");
+                    $row = array();
+                    $row['id'] = $v['id'];
+                    $row['updated_at'] = time();
+                    if ($v['weights'] > 0) {
+                        $row['weights'] = $v['weights']-1;
+                    }
+                    $row['plan'] = $plan + $this->aConfig['plan_special_1'];
+                    // dump($row);
+                    $this->gaTools['mysqldb']->update('movie', $row);
+                    die('why #search ol');
                     continue;
                 }
                 $dom = $dom->find("li");
                 if (empty($dom)) {
-                    die('why');
+                    // die('why');
                     continue;
                 }
-                $urls = array();
+                $rows = array();
                 foreach ($dom as $k1 => $v1) {
                      $domTmp = $v1->find(".r a", 0);
                      if (empty($domTmp) || !isset($domTmp->href) || $domTmp->href=="") {
@@ -249,34 +285,115 @@ class scan_seed_in_google_agent
                      if (!isset($arr_query['q']) || empty($arr_query['q'])) {
                         continue;
                      }
-                     $urls[] = $arr_query['q'];
+                     $row = array();
+                     $row['mid'] = $v['id'];
+                     $row['created_at'] = $row['updated_at'] = time();
+                     $row['url'] = $arr_query['q'];
+                     $row['url_md5'] = md5($row['url']);
+                     $row['plan'] = $plan;
+                     $rows[] = $row;
                 }
-                dump($urls);
+                // dump($rows);
+                $this->save($rows);
+                $domCon->__destruct();
+                unset($domCon);
+                for ($i=1; $i < $page_total; $i++) { 
+                    $start = $i*$google_size;
+                    // show_msg("$start=".$start."<br />\r\n");
+                    //准备抓
+                    $sUrl = str_replace($this->aConfig['url_template']['search_replace'], array(urlencode($keyword_0), $start), $url);
+                    // die($sUrl);
+                    $sCon = meclient($sUrl);
+                    // echo $sCon;
+                    // die;
+                    // $sCon = "";
+                    $domCon = str_get_dom($sCon);
+                    // if (empty($domCon)) {
 
-                die;
-                $row2 = array();
-                $row2['id'] = $v['id'];
-                $row2['average'] = number_format($average, 1);
-                $row2['num_raters'] = $v['douban_num_raters']+$v['mtime_num_raters']+$v['imdb_num_raters'];
-                // $row2['weights'] = 1;
-                $this->gaTools['mysqldb']->update('movie', $row2);
+                    // }
+                    $dom = $domCon->find("#resultStats", 0);
+                    if (empty($dom)) {
+                        show_msg("id=".$v['id']."::'".$sUrl."'"."\r\n");
+                        die;
+                    }
+                    
+                    $dom = $domCon->find("#search ol", 0);
+                    if (empty($dom)) {
+                        $row = array();
+                        $row['id'] = $v['id'];
+                        $row['updated_at'] = time();
+                        if ($v['weights'] > 0) {
+                            $row['weights'] = $v['weights']-1;
+                        }
+                        $row['plan'] = $plan + $this->aConfig['plan_special_1'];
+                        // dump($row);
+                        $this->gaTools['mysqldb']->update('movie', $row);
+                        show_msg("id=".$v['id']."::'".$sUrl."'"."\r\n");
+                        die('why #search ol');
+                        // die('why');
+                        continue;
+                    }
+                    $dom = $dom->find("li");
+                    if (empty($dom)) {
+                        // die('why');
+                        continue;
+                    }
+                    $rows = array();
+                    foreach ($dom as $k1 => $v1) {
+                         $domTmp = $v1->find(".r a", 0);
+                         if (empty($domTmp) || !isset($domTmp->href) || $domTmp->href=="") {
+                            continue;
+                         }
+                         $tmp_url = htmlspecialchars_decode(remove_invalid($domTmp->href));
+                         $pos = strpos($tmp_url,"?");
+                         $query = '';
+                         if ($pos === false) {
+                            $query = $tmp_url;
+                         } else {
+                            $query = substr($tmp_url, $pos+1);
+                         }
+                         $arr_query = convertUrlQuery($query);
+                         if (!isset($arr_query['q']) || empty($arr_query['q'])) {
+                            continue;
+                         }
+                         $row = array();
+                         $row['mid'] = $v['id'];
+                         $row['created_at'] = $row['updated_at'] = time();
+                         $row['url'] = $arr_query['q'];
+                         $row['url_md5'] = md5($row['url']);
+                         $row['plan'] = $plan;
+                         $rows[] = $row;
+                    }
+                    // dump($rows);
+                    $this->save($rows);
+                    $domCon->__destruct();
+                    unset($domCon);
+                    // die;
+                }
+
+                // die;
+                // $row2 = array();
+                // $row2['id'] = $v['id'];
+                // $row2['average'] = number_format($average, 1);
+                // $row2['num_raters'] = $v['douban_num_raters']+$v['mtime_num_raters']+$v['imdb_num_raters'];
+                // // $row2['weights'] = 1;
+                // $this->gaTools['mysqldb']->update('movie', $row2);
                 show_msg("ok!!<br />\r\n");
             }
         }
-        die;
 
 
         show_msg("搞定收工！！！<br />\r\n");
         die;
-        $this->aScriptNeed['charset_of_getcon'] = 'UTF-8';
+        // $this->aScriptNeed['charset_of_getcon'] = 'UTF-8';
         // $url = remove_blank($this->aConfig['url_0_template']['con']);
         // $this->aScriptNeed['url_url_0'] = str_replace($this->aConfig['url_0_template']['search_replace'], 1, $url);
         // $aCollectionResult = $this->filter();
         // echo $aCollectionResult;
         // die;
 
-        $limit = 1;
-        $movie_tmp_tool_db = new movie_tmp_tool_db();
+        // $limit = 1;
+        // $movie_tmp_tool_db = new movie_tmp_tool_db();
 
         
         #响应
@@ -284,6 +401,27 @@ class scan_seed_in_google_agent
 //		$responser->execute($aCollectionResult);
     }
     
+    private function save($data)
+    {
+        try{
+            if ($data) {
+                foreach ($data as $key => $value) {
+                    $this->gaTools['mysqldb']->escape($value);
+                    $tmp = $this->gaTools['mysqldb']->load('from_google',  $value['url_md5'], 'url_md5');
+                    // $tmp = false;
+                    if ($tmp) {
+                        continue;
+                    }
+                    $this->gaTools['mysqldb']->save('from_google', $value);
+                }
+            }
+            return true;
+        } catch(Exception $e) {
+            show_msg($e->getMessage());
+            return false;
+        }
+    }
+
     private function filter()
     {
         $aCollectionResult = array();
@@ -324,41 +462,78 @@ class scan_seed_in_google_agent
 
         $this->aConfig['plan'] = 1;
         $this->aConfig['plan_special'] = 10000;
+        $this->aConfig['plan_special_1'] = 20000;
+        $this->aConfig['plan_special_2'] = 30000;
 
         // echo urldecode('%68%74%74%70%3a%2f%2f%77%77%77%2e%69%63%69%6c%69%2e%63%6f%6d%2f%65%6d%75%6c%65%2f%64%6f%77%6e%6c%6f%61%64%2f%31%32%35%37%35%32');
         // die;
 
-        $this->aConfig['sites_may-filter_in-title'] = array(
+        $this->aConfig['or'] = ' | ';
+        $this->aConfig['and'] = ' ';
+
+        // $aArgv = $GLOBALS['argv'];
+        // $doWhat = isset($aArgv[8]);
+        
+        ################种子###############
+        $this->aConfig['seed']['sites_may-filter_in-title'] = array(
             'www.icili.com/download/xiazai/', 
             'www.icili.com/emule/download/', 
             'www.torrentkitty.com/information/', 
             'btmee.com/show/', 
             'www.2hd.cc/read.php', 
             );
-        $this->aConfig['or'] = ' | ';
-        $this->aConfig['and'] = ' ';
-        $this->aConfig['sites_may-filter_in-title_ok'] = '';
-        if (isset($this->aConfig['sites_may-filter_in-title']) && !empty($this->aConfig['sites_may-filter_in-title'])) {
-            foreach ($this->aConfig['sites_may-filter_in-title'] as $k => $v) {
-                $this->aConfig['sites_may-filter_in-title_ok'] .= 'site:'.$v.$this->aConfig['or'];
-            }
-            if ($this->aConfig['sites_may-filter_in-title_ok'] != '') {
-                 $this->aConfig['sites_may-filter_in-title_ok'] = '('.substr($this->aConfig['sites_may-filter_in-title_ok'], 0, -3).')';
-            }
-            // $this->aConfig['sites_may-filter_in-title_ok'] = substr($this->aConfig['sites_may-filter_in-title_ok'], 0, -3);
-        }
-        $this->aConfig['sites_notmay-filter_notin-title'] = array(
+        $this->aConfig['seed']['sites_notmay-filter_notin-title'] = array(
             'grbt.asia/show.php', 
             );
-        $this->aConfig['sites_notmay-filter_notin-title_ok'] = '';
-        if (isset($this->aConfig['sites_notmay-filter_notin-title']) && !empty($this->aConfig['sites_notmay-filter_notin-title'])) {
-            foreach ($this->aConfig['sites_notmay-filter_notin-title'] as $k => $v) {
-                $this->aConfig['sites_notmay-filter_notin-title_ok'] .= 'site:'.$v.$this->aConfig['or'];
+        
+        $this->aConfig['seed']['sites_may-filter_in-title_ok'] = '';
+        if (isset($this->aConfig['seed']['sites_may-filter_in-title']) && !empty($this->aConfig['seed']['sites_may-filter_in-title'])) {
+            foreach ($this->aConfig['seed']['sites_may-filter_in-title'] as $k => $v) {
+                $this->aConfig['seed']['sites_may-filter_in-title_ok'] .= 'site:'.$v.$this->aConfig['or'];
             }
-            if ($this->aConfig['sites_notmay-filter_notin-title_ok'] != '') {
-                $this->aConfig['sites_notmay-filter_notin-title_ok'] = '('.substr($this->aConfig['sites_notmay-filter_notin-title_ok'], 0, -3).')';
+            if ($this->aConfig['seed']['sites_may-filter_in-title_ok'] != '') {
+                 $this->aConfig['seed']['sites_may-filter_in-title_ok'] = '('.substr($this->aConfig['seed']['sites_may-filter_in-title_ok'], 0, -3).')';
             }
-            // $this->aConfig['sites_notmay-filter_notin-title_ok'] = substr($this->aConfig['sites_notmay-filter_notin-title_ok'], 0, -3);
+        }
+        
+        $this->aConfig['seed']['sites_notmay-filter_notin-title_ok'] = '';
+        if (isset($this->aConfig['seed']['sites_notmay-filter_notin-title']) && !empty($this->aConfig['seed']['sites_notmay-filter_notin-title'])) {
+            foreach ($this->aConfig['seed']['sites_notmay-filter_notin-title'] as $k => $v) {
+                $this->aConfig['seed']['sites_notmay-filter_notin-title_ok'] .= 'site:'.$v.$this->aConfig['or'];
+            }
+            if ($this->aConfig['seed']['sites_notmay-filter_notin-title_ok'] != '') {
+                $this->aConfig['seed']['sites_notmay-filter_notin-title_ok'] = '('.substr($this->aConfig['seed']['sites_notmay-filter_notin-title_ok'], 0, -3).')';
+            }
+        }
+
+        ################在线视频###############
+        $this->aConfig['olplay']['sites_may-filter_in-title'] = array(
+            'v.youku.com/v_show', 
+            'www.tudou.com/albumplay', 
+            'www.letv.com/ptv/pplay', 
+            'v.qq.com/cover', 
+            );
+        $this->aConfig['olplay']['sites_notmay-filter_notin-title'] = array(
+            );
+        
+        $this->aConfig['olplay']['sites_may-filter_in-title_ok'] = '';
+        if (isset($this->aConfig['olplay']['sites_may-filter_in-title']) && !empty($this->aConfig['olplay']['sites_may-filter_in-title'])) {
+            foreach ($this->aConfig['olplay']['sites_may-filter_in-title'] as $k => $v) {
+                $this->aConfig['olplay']['sites_may-filter_in-title_ok'] .= 'site:'.$v.$this->aConfig['or'];
+            }
+            if ($this->aConfig['olplay']['sites_may-filter_in-title_ok'] != '') {
+                 $this->aConfig['olplay']['sites_may-filter_in-title_ok'] = '('.substr($this->aConfig['olplay']['sites_may-filter_in-title_ok'], 0, -3).')';
+            }
+        }
+        
+        $this->aConfig['olplay']['sites_notmay-filter_notin-title_ok'] = '';
+        if (isset($this->aConfig['olplay']['sites_notmay-filter_notin-title']) && !empty($this->aConfig['olplay']['sites_notmay-filter_notin-title'])) {
+            foreach ($this->aConfig['olplay']['sites_notmay-filter_notin-title'] as $k => $v) {
+                $this->aConfig['olplay']['sites_notmay-filter_notin-title_ok'] .= 'site:'.$v.$this->aConfig['or'];
+            }
+            if ($this->aConfig['olplay']['sites_notmay-filter_notin-title_ok'] != '') {
+                $this->aConfig['olplay']['sites_notmay-filter_notin-title_ok'] = '('.substr($this->aConfig['olplay']['sites_notmay-filter_notin-title_ok'], 0, -3).')';
+            }
         }
     }
     
