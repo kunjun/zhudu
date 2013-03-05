@@ -1,0 +1,359 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"tm",
+				"tmp_url  (variable)"
+			],
+			[
+				"base",
+				"base64_decode  (function)"
+			],
+			[
+				"str_",
+				"str_get_dom  (function)"
+			],
+			[
+				"show",
+				"show_msg  (function)"
+			],
+			[
+				"va",
+				"value2  (variable)"
+			],
+			[
+				"str_r",
+				"str_replace  (function)"
+			],
+			[
+				"is_n",
+				"is_numeric  (function)"
+			],
+			[
+				"is_a",
+				"is_array  (function)"
+			],
+			[
+				"strp",
+				"strpos  (function)"
+			],
+			[
+				"for",
+				"foreach	foreach …"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"list",
+				"Package Control: List Packages"
+			],
+			[
+				"pa",
+				"Package Control: Remove Package"
+			],
+			[
+				"in",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"page",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 536.0
+	},
+	"console":
+	{
+		"height": 0.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/F/web/zhudu/ReadyGo/executor/10w/action/scan_seed_in_google_agent.php",
+		"/F/web/zhudu/ReadyGo/console/tools/main.php",
+		"/F/web/zhudu/ReadyGo/executor/10w/doc/google搜索分析.txt",
+		"/D/Users/nigg/Downloads/google_bad.html",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/get_movie_info_douban_imdb_agent.php",
+		"/F/web/zhudu/ReadyGo/console/system/heart.php",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/movie_tmp_tool_agent.php",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/movie_tmp_tool2_agent.php",
+		"/D/Users/nigg/Downloads/130124.sql",
+		"/F/web/zhudu/ReadyGo/console/tools/mysqldb.php",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/get_imdb_info_agent.php",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/pipei_movie_name_tool_agent.php",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/make_movie_type_tool_agent.php",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/scan_baidu_movie_agent.php",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/scan_douban_movie.bat                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cbat%5Cscan_douban_movie.bat",
+		"/F/web/zhudu/ReadyGo/bat/scan_douban_movie.bat",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/tmp_html.html                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cdatas%5Ctmp_html.html",
+		"/F/web/zhudu/ReadyGo/datas/tmp_html.html",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/get_movie_info_douban_imdb_agent_1_1.bat                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cbat%5Cget_movie_info_douban_imdb_agent_1_1.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_1_3.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_1_4.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_1_5.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_1_6.bat",
+		"/F/web/test/test.php",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_1_2.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_1_1.bat",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/get_movie_info_douban_imdb_agent.bat                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cbat%5Cget_movie_info_douban_imdb_agent.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent.bat",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/get_movie_info_douban_imdb_agent_2.bat                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cbat%5Cget_movie_info_douban_imdb_agent_2.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_4.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_3.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_5.bat",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/get_douban_info_by_imdb_id_agent.php",
+		"/F/web/zhudu/ReadyGo/bat/get_movie_info_douban_imdb_agent_2.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_imdb_info4.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_imdb_cn_1.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_fuli6.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_imdb_info5.bat",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/User/Preferences.sublime-settings",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/scan_douban_movie_agent.php",
+		"/F/web/zhudu/ReadyGo/datas/tmp.log",
+		"/F/web/zhudu/ReadyGo/datas/scan_douban_movie_agent.log",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/movie_tmp_tool.bat                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cbat%5Cmovie_tmp_tool.bat",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/get_imdb_info2.bat                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cbat%5Cget_imdb_info2.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_imdb_info2.bat",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/get_douban_info_by_imdb_id.bat                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cbat%5Cget_douban_info_by_imdb_id.bat",
+		"/F/web/zhudu/ReadyGo/bat/get_douban_info_by_imdb_id.bat",
+		"/F/web/zhudu/ReadyGo/bat/bookdb.bat",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/User/SideBarEnhancements/Open With/Side Bar.sublime-menu",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/GBK Encoding Support/tmp/get_fuli2.bat                F%3A%5Cweb%5Czhudu%5CReadyGo%5Cbat%5Cget_fuli2.bat",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/Default/Preferences.sublime-settings",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/BracketHighlighter/BracketHighlighter.sublime-settings",
+		"/F/web/zhudu/ReadyGo/executor/10w/action/scan_douban_movie.php",
+		"/F/web/minolta/view/layout/web/default.tpl.html",
+		"/F/web/minolta/controller/movie.class.php",
+		"/F/web/minolta/_lp/lp.init.php",
+		"/F/web/zhudu/ReadyGo/console/tools/simple_html_dom.php",
+		"/F/web/minolta/view/layout/web/main/movie/index.tpl.html",
+		"/F/web/minolta/lib/mysqldb.lib.php",
+		"/F/web/minolta/config/app.config.php",
+		"/F/web/minolta/_lp/core/lib/core.function.php",
+		"/F/web/minolta/view/layout/web/header.tpl.html",
+		"/F/web/minolta/config.yaml",
+		"/F/web/minolta/lib/router.php",
+		"/F/web/minolta/view/layout/web/main/movie/test.tpl.html",
+		"/F/web/minolta/index.php",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/CTags/CTags.sublime-settings",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/CTags/Default.sublime-mousemap",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/User/Default (Windows).sublime-mousemap",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/User/CTags.sublime-settings",
+		"/F/web/minolta/.htaccess",
+		"/F/web/minolta/lib/app.function.php",
+		"/F/web/minolta/.gitignore",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/nigg/Desktop/ezuofang/demo_24_col.html",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/Tag/Main.sublime-menu",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/Tag/Default (Windows).sublime-keymap",
+		"/C/Users/nigg/Desktop/Sublime Text 2 Build 2220 x64/Data/Packages/User/Default (Windows).sublime-keymap",
+		"/C/Users/nigg/Desktop/Sublime Text 2 Build 2220 x64/Data/Packages/Default/Default (Windows).sublime-keymap",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/Default/Default (Windows).sublime-keymap",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/Tag/Tag Package.sublime-settings",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/User/Tag Package.sublime-settings",
+		"/C/Users/nigg/Desktop/Sublime Text 2 Build 2220 x64/Data/Packages/Tag/Default (Windows).sublime-keymap",
+		"/C/Users/nigg/Desktop/Sublime Text 2 Build 2220 x64/Data/Packages/Default/Preferences.sublime-settings",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/Default/Preferences (Windows).sublime-settings",
+		"/F/web/minolta/README.md",
+		"/C/Users/nigg/Desktop/ezuofang/index.html",
+		"/C/Users/nigg/Desktop/ezuofang/static/css/style.css",
+		"/F/web/minolta/static/js/app.js",
+		"/F/web/minolta/view/layout/web/--default.tpl.html",
+		"/F/web/minolta/view/layout/web/footer.tpl.html",
+		"/F/web/minolta/local/zh_cn.lang.php",
+		"/F/web/minolta/config/db.config.php",
+		"/F/web/minolta/controller/app.function.php",
+		"/F/web/minolta/static/css/style.css",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/JsFormat/Default (Windows).sublime-keymap",
+		"/F/web/xiaoxigua_sae/templets/guagua/static/js/jquery.hint.js",
+		"/F/web/minolta/view/layout/web/main/movie/index.html",
+		"/F/web/minolta/view/layout/web/default.tpl copy.html",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/SideBarEnhancements/Default (Windows).sublime-keymap",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/PhpTidy/Default (Windows).sublime-keymap",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/Code Alignment/Default (Windows).sublime-keymap",
+		"/E/GreenTools/bit32/Sublime Text 2.0.1/Data/Packages/SideBarEnhancements/messages/11.13.2012.1305.0.txt"
+	],
+	"find":
+	{
+		"height": 37.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"['seed']",
+			"['sites_may-filter_in-title_ok']",
+			"['sites_notmay-filter_notin-title']",
+			"['sites_notmay-filter_notin-title_ok']",
+			"['sites_may-filter_in-title_ok']",
+			"['sites_may-filter_in-title']",
+			"]+1",
+			";\n",
+			"key",
+			"value",
+			";\n",
+			"and_filter_factor",
+			"$filter_factor",
+			"filter_factor",
+			"' '.$or.' '",
+			" else if ($tmp[1] == '港版') {\n                        $guojia = '港';\n                    }",
+			"判断是否被封",
+			"$aTmp",
+			"}\n",
+			"value",
+			"ley",
+			"country",
+			"url_0_template",
+			"}');\n",
+			"url_url_0",
+			"type_map",
+			"country_map",
+			"ry_",
+			"ar_",
+			"pe_",
+			"e_",
+			"y_",
+			"r_",
+			"_",
+			"/movie",
+			"tempArr",
+			"\n        $data['page_size'] = $page_size;\n        $data['page'] = $ops['page'];\n        $data['ops'] = $ops;",
+			"\n",
+			"\n						<span>\n							<a href=\"/movie/type_juqing\">黑色</a>\n						</span>",
+			"<span>\n							<a href=\"/movie/type_juqing\">剧情</a>\n						</span>"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 66.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"scan",
+				"executor/10w/action/scan_baidu_movie_agent.php"
+			],
+			[
+				"s",
+				"bat/scan_douban_movie.bat"
+			],
+			[
+				"",
+				"static/js/app.js"
+			],
+			[
+				"zh",
+				"local/zh_cn.lang.php"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 178.0,
+	"status_bar_visible": true
+}
