@@ -39,21 +39,25 @@ class brush_down_agent
         //下载链接
         $this->aParameter['durl'] = isset($this->aParameter['durl']) ? urldecode($this->aParameter['durl']) : '';
         //页面下载链接的元素选择
-        $this->aParameter['durl_wz'] = isset($this->aParameter['durl_wz']) ? urldecode($this->aParameter['durl_wz']) : '';
+        $this->aParameter['durl_wz'] = isset($this->aParameter['durl_wz']) ? $this->aParameter['durl_wz'] : '';
         //title包含的某一文字，用于判断是否打开页面成功
-        $this->aParameter['title'] = isset($this->aParameter['title']) ? urldecode($this->aParameter['title']) : '';
+        $this->aParameter['title'] = isset($this->aParameter['title']) ? $this->aParameter['title'] : '';
+        //下载限定时长
+        $this->aParameter['dtime'] = isset($this->aParameter['dtime']) ? $this->aParameter['dtime'] : '';
         ####################################################
         
         if ($this->aParameter['ini']) {
             $this->ini = &get_config($this->aParameter['ini']);
-            $this->aParameter['iurl'] = isset($this->ini['iurl']) ? $this->ini['iurl'] : '';
-            $this->aParameter['durl'] = isset($this->ini['durl']) ? $this->ini['durl'] : '';
+            $this->aParameter['iurl'] = isset($this->ini['iurl']) ? urldecode($this->ini['iurl']) : '';
+            $this->aParameter['durl'] = isset($this->ini['durl']) ? urldecode($this->ini['durl']) : '';
             $this->aParameter['durl_wz'] = isset($this->ini['durl_wz']) ? $this->ini['durl_wz'] : '';
             $this->aParameter['title'] = isset($this->ini['title']) ? $this->ini['title'] : '';
+            $this->aParameter['num'] = isset($this->ini['num']) ? $this->ini['num'] : $this->aParameter['num'];
+            $this->aParameter['dtime'] = isset($this->ini['dtime']) ? $this->ini['dtime'] : $this->aParameter['dtime'];
         }
         
-        dump($this->aParameter);
-        die;
+//         dump($this->aParameter);
+//         die;
         
         $is_no_nulls = array('iurl');
         if ($is_no_nulls) foreach ($is_no_nulls as $k=>$v) {
@@ -73,9 +77,10 @@ class brush_down_agent
         
         $i = 0;
         do {
-            //sleep(3);
+            sleep(rand(2,22));
             show_msg($i.".....".TNL);
             $this->run();
+//             die;
             $i++;
         } while($i < $this->aParameter['num']);
         
@@ -100,13 +105,13 @@ class brush_down_agent
         $curl_p['CURLOPT_HTTPHEADER'] = array('CLIENT-IP:'.$ip_0, 'X-FORWARDED-FOR:'.$ip_1);
         
         $result = $this->net_engine($curl_p);
-        if (preg_match("/^\\\$_\\\$Errno\:(.*)/", $result, $arr)) {
+        if (preg_match("/^\\\$_\\\$Errno\:(.*)/", $result['msg'], $arr)) {
             $error_msg = $arr[1];
             show_msg($error_msg.TNL);
         }
         $r_0 = "";
         if ($this->aParameter['title'] != '') {
-            if (preg_match("/<title>.*?(".$this->aParameter['title'].").*?<\/title>/", $result, $arr)) {
+            if (preg_match("/<title>.*?(".$this->aParameter['title'].").*?<\/title>/", $result['con'], $arr)) {
                 $r_0 = $arr[1];
             }
         } else {
@@ -122,8 +127,13 @@ class brush_down_agent
                 $curl_p['CURLOPT_URL'] = '';
             }
             if ($curl_p['CURLOPT_URL'] != '') {
-                $curl_p['CURLOPT_TIMEOUT'] = rand(4,12);
+                $curl_p['CURLOPT_TIMEOUT'] = $this->aParameter['dtime'] ? $this->aParameter['dtime'] : rand(4,12);
                 $result = $this->net_engine($curl_p);
+                if (preg_match("/^\\\$_\\\$Errno\:(.*)/", $result['msg'], $arr)) {
+                    $error_msg = $arr[1];
+                    show_msg($error_msg.TNL);
+                    return false;
+                }
             } else {
                 return false;
             }
@@ -184,11 +194,14 @@ class brush_down_agent
         $p['CURLOPT_RETURNTRANSFER'] = isset($p['CURLOPT_RETURNTRANSFER']) && $p['CURLOPT_RETURNTRANSFER'] != "" ? $p['CURLOPT_RETURNTRANSFER'] : 1;
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, $p['CURLOPT_RETURNTRANSFER']); // 获取的信息以文件流的形式返回
         $result = curl_exec($curl); // 执行操作
+        $aResult = array();
+        $aResult['msg'] = 'Success';
+        $aResult['con'] = $result;
         if (curl_errno($curl)) {
-            $result = '$_$Errno:'.curl_error($curl);//捕抓异常
+            $aResult['msg'] = '$_$Errno:'.curl_error($curl);//捕抓异常
         }
         curl_close($curl);
-        return $result;
+        return $aResult;
     }
     
     private function filter()
