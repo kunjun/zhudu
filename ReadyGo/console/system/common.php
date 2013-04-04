@@ -22,23 +22,37 @@ function is_php($version = '5.0.0')
 //	include_once($classpath); //加栽类
 //}
 
-function &get_config($name='configer')
+function &get_config($name='configer', $space='')
 {
     static $main_conf;
 
     if ( ! isset($main_conf[$name]))
     {
-        if ( ! file_exists(CONFIG_PATH.$name.EXT))
-        {
-            $system_language = &load_language(SYSTEM_DEFAULT_LANGEAGE_FILENAME);
-            show_error($system_language->language['config_format_false']);
+        if (defined('APP_CONFIG_PATH')) {
+            $file_path = APP_CONFIG_PATH.$name.EXT;
+            if ( !file_exists($file_path))
+            {
+                $file_path = CONFIG_PATH.$name.EXT;
+                if ( ! file_exists($file_path))
+                {
+                    $system_language = &load_language();
+                    show_error($system_language->language['config_format_false']);
+                }
+            }
+        } else {
+            $file_path = CONFIG_PATH.$name.EXT;
+            if ( ! file_exists($file_path))
+            {
+                $system_language = &load_language();
+                show_error($system_language->language['config_format_false']);
+            }
         }
 
-        require_once(CONFIG_PATH.$name.EXT);
+        require_once($file_path);
 
         if ( ! isset($$name) OR ! is_array($$name))
         {
-            $system_language = &load_language(SYSTEM_DEFAULT_LANGEAGE_FILENAME);
+            $system_language = &load_language();
             show_error($system_language->language['config_format_false']);
         }
 

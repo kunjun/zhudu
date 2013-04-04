@@ -9,6 +9,19 @@
  * @author NIGG
  * @version $Id$
  */
+if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {   
+    //'This is a server using Windows!';   
+    define('NL', "\r\n");
+} else {   
+    //'This is a server not using Windows!';
+    define('NL', "\n");
+}
+if (isset($argv)) {
+    define('TNL', NL);
+} else {
+    define('TNL', "<br />".NL);
+}
+
 if(isset($argv) AND count($argv) >= 2) {
     $argv[1] = str_replace("?", '', $argv[1]);
 
@@ -27,7 +40,7 @@ if(isset($argv) AND count($argv) >= 2) {
 
 ###########系统级需要的参数
 $ops['def_charset'] = isset($_GET['def_charset']) ? $_GET['def_charset'] : 'UTF-8';
-$ops['out_charset'] = isset($_GET['out_charset']) ? $_GET['out_charset'] : 'UTF-8';
+$ops['out_charset'] = isset($_GET['out_charset']) ? $_GET['out_charset'] : 'GBK';
 $ops['debug'] = isset($_GET['debug']) ? $_GET['debug'] : true;
 $ops['time_limit'] = isset($_GET['time_limit']) ? $_GET['time_limit'] : 0;
 $ops['memory_limit'] = isset($_GET['memory_limit']) ? $_GET['memory_limit'] : '-1';

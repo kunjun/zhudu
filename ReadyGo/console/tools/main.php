@@ -586,27 +586,3 @@ function make_internal_ip()
     return $ip;
 }
 
-function curl_string ($url,$user_agent,$proxy,$CURLOPT_HTTPHEADER,$CURLOPT_TIMEOUT){
-    $curl = curl_init();
-    $cksfile = "d:\cookies.txt";
-    //curl_setopt ($ch, CURLOPT_PROXY, $proxy);
-    curl_setopt ($curl, CURLOPT_URL, $url);
-    curl_setopt ($curl, CURLOPT_USERAGENT, $user_agent);
-    curl_setopt ($curl, CURLOPT_HTTPHEADER, $CURLOPT_HTTPHEADER);  //此处可以改为任意假IP
-
-    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($curl, CURLOPT_COOKIESESSION, 1);
-    curl_setopt($curl, CURLOPT_COOKIEJAR, $cksfile); //读上次cookie
-    curl_setopt($curl, CURLOPT_COOKIEFILE, $cksfile); //写本次cookie
-    curl_setopt($curl, CURLOPT_TIMEOUT, $CURLOPT_TIMEOUT); // 设置超时限制防止死循环
-    curl_setopt($curl, CURLOPT_HEADER, 0); // 显示返回的Header区域内容
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); // 获取的信息以文件流的形式返回
-    $result = curl_exec($curl); // 执行操作
-    if (curl_errno($curl)) {
-        echo 'Errno'.curl_error($curl);//捕抓异常
-    }
-
-//     $result = curl_exec ($ch);
-    curl_close($curl);
-    return $result;
-}

@@ -17,6 +17,7 @@ $$configer2 = &get_config(CONFIGER);
 $tmpConfiger = $$configer2;
 $space = get_or_post($tmpConfiger['url_space']);
 if ($space) {
+    define('APP_CONFIG_PATH', APP_PATH . $space . '/' . CONFIG_FOLDER . '/');
     $app_configer_loction = APP_PATH . $space . '/' . CONFIG_FOLDER . '/' . CONFIGER . EXT;
     if (file_exists($app_configer_loction)) {
         require_once($app_configer_loction);

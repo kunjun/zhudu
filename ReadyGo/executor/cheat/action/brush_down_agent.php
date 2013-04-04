@@ -4,7 +4,7 @@
 Version: 1
  Effect: 
    Date: 
-  Notes: ?space=cheat&action=brush_down&do=always&end=1
+  Notes: ?space=cheat&action=brush_down
 ********************************************************/
 class brush_down_agent
 {
@@ -14,6 +14,7 @@ class brush_down_agent
     private $aaGatherHandleError = array();
     private $aParameter = array();
     private $aScriptNeed = array();
+    private $user_agents = array();
     function __construct()
     {
         $this->aCommConfiger = &get_config(CONFIGER);
@@ -31,28 +32,52 @@ class brush_down_agent
     function execute()
     {
         ####################################################
-        $this->aParameter['do'] = isset($this->aParameter['do']) ? $this->aParameter['do'] : '';
-        $this->aParameter['start0'] = isset($this->aParameter['start0']) ? $this->aParameter['start0'] : 1;
-        $this->aParameter['start1'] = isset($this->aParameter['start1']) ? $this->aParameter['start1'] : 1;
-        $this->aParameter['end'] = isset($this->aParameter['end']) ? $this->aParameter['end'] : '';
+        $this->aParameter['num'] = isset($this->aParameter['num']) ? $this->aParameter['num'] : 10;
+        $this->aParameter['ini'] = isset($this->aParameter['ini']) ? $this->aParameter['ini'] : '';
+        //app详细页
+        $this->aParameter['iurl'] = isset($this->aParameter['iurl']) ? urldecode($this->aParameter['iurl']) : '';
+        //下载链接
+        $this->aParameter['durl'] = isset($this->aParameter['durl']) ? urldecode($this->aParameter['durl']) : '';
+        //页面下载链接的元素选择
+        $this->aParameter['durl_wz'] = isset($this->aParameter['durl_wz']) ? urldecode($this->aParameter['durl_wz']) : '';
+        //title包含的某一文字，用于判断是否打开页面成功
+        $this->aParameter['title'] = isset($this->aParameter['title']) ? urldecode($this->aParameter['title']) : '';
         ####################################################
-//         $aArgv = $GLOBALS['argv'];
-//         $this->aParameter['start0'] = isset($aArgv[5]) ? $aArgv[5] : '1';
-//         $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '97191';
-        ##################
         
-        ##################
+        if ($this->aParameter['ini']) {
+            $this->ini = &get_config($this->aParameter['ini']);
+            $this->aParameter['iurl'] = isset($this->ini['iurl']) ? $this->ini['iurl'] : '';
+            $this->aParameter['durl'] = isset($this->ini['durl']) ? $this->ini['durl'] : '';
+            $this->aParameter['durl_wz'] = isset($this->ini['durl_wz']) ? $this->ini['durl_wz'] : '';
+            $this->aParameter['title'] = isset($this->ini['title']) ? $this->ini['title'] : '';
+        }
         
-        dump($_REQUEST);
-        dump($_GET);
+        dump($this->aParameter);
         die;
+        
+        $is_no_nulls = array('iurl');
+        if ($is_no_nulls) foreach ($is_no_nulls as $k=>$v) {
+            if (!isset($this->aParameter[$v]) || $this->aParameter[$v] == '') {
+                show_error($v."不能为空");
+            }
+        }
+        if ($this->aParameter['durl'] == '' && $this->aParameter['durl_wz'] == '') {
+            show_error("durl & durl_wz 至少一个不为空");
+        }
+        
+        if (!is_numeric($this->aParameter['num'])) {
+            show_error("num需要是一个数字");
+        }
+        
+        $this->user_agents = &get_config("user_agents");
         
         $i = 0;
         do {
-            sleep(3);
+            //sleep(3);
+            show_msg($i.".....".TNL);
             $this->run();
             $i++;
-        } while($i < 10);
+        } while($i < $this->aParameter['num']);
         
         show_msg("报告刷了{$i}次<br />\r\n");
         die;
@@ -60,30 +85,110 @@ class brush_down_agent
     
     function run()
     {
-        $CURLOPT_TIMEOUT = rand(4,12);
+        //'http://www.nduoa.com/apk/detail/515534'
+        //'http://www.nduoa.com/apk/download/515534?from=ndoo'
+        
+        $curl_p = array();
         $ip_0 = make_internal_ip();
         $ip_1 = make_internal_ip();
-        $CURLOPT_HTTPHEADER = array('CLIENT-IP:'.$ip_0, 'X-FORWARDED-FOR:'.$ip_1);
-        $url = "http://iframe.ip138.com/ic.asp";
-        $url = "http://ip123.com";
-        $user_agent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1;  .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; InfoPath.2;";
-        $proxy = "http://202.99.27.3:8080";    //此处为代理服务器IP和PORT
         
-        $url = 'http://www.nduoa.com/apk/detail/515534';
-        $string = curl_string($url,$user_agent,$proxy,$CURLOPT_HTTPHEADER,$CURLOPT_TIMEOUT);
-        //$string = iconv("utf-8","utf-8",$string);
+//         $url = "http://iframe.ip138.com/ic.asp";
+//         $url = "http://ip123.com";
+        
+        $curl_p['CURLOPT_URL'] = $this->aParameter['iurl'];
+        $curl_p['CURLOPT_USERAGENT'] = $this->get_rand_user_agent($this->user_agents);
+        $curl_p['CURLOPT_HTTPHEADER'] = array('CLIENT-IP:'.$ip_0, 'X-FORWARDED-FOR:'.$ip_1);
+        
+        $result = $this->net_engine($curl_p);
+        if (preg_match("/^\\\$_\\\$Errno\:(.*)/", $result, $arr)) {
+            $error_msg = $arr[1];
+            show_msg($error_msg.TNL);
+        }
         $r_0 = "";
-        if (preg_match("/<title>(合金弹头叉版.*?)|.*?<\/title>/", $string, $arr)) {
-            $r_0 = $arr[1];
+        if ($this->aParameter['title'] != '') {
+            if (preg_match("/<title>.*?(".$this->aParameter['title'].").*?<\/title>/", $result, $arr)) {
+                $r_0 = $arr[1];
+            }
+        } else {
+            $r_0 = 'yes';
         }
         if ($r_0 != "") {
-            show_msg($r_0."<br />\r\n");
-            //开刷
-            $url = 'http://www.nduoa.com/apk/download/515534?from=ndoo';
-            $string = curl_string($url,$user_agent,$proxy,$CURLOPT_HTTPHEADER,$CURLOPT_TIMEOUT);
+            show_msg($r_0.TNL);
+            //开刷 
+            if ($this->aParameter['durl'] != '') {
+                $curl_p['CURLOPT_URL'] = $this->aParameter['durl'];
+            } else {
+                //根据durl_wz选择
+                $curl_p['CURLOPT_URL'] = '';
+            }
+            if ($curl_p['CURLOPT_URL'] != '') {
+                $curl_p['CURLOPT_TIMEOUT'] = rand(4,12);
+                $result = $this->net_engine($curl_p);
+            } else {
+                return false;
+            }
         } else {
-            show_msg("已被封"."<br />\r\n");
+            show_msg("已被封".TNL);
+            return false;
         }
+        return true;
+    }
+    
+    function get_rand_user_agent($user_agents)
+    {
+        return $user_agents[rand(0,(count($user_agents)-1))];
+    }
+    
+        
+
+
+    function net_engine ($p = array()){
+        if (!isset($p['CURLOPT_URL']) || $p['CURLOPT_URL'] == "") {
+            return false;
+        }
+        $curl = curl_init();
+        if (isset($p['cksfile']) && $p['cksfile'] != "") {
+            $cksfile = $p['cksfile'];
+        } else {
+            $cksfile = COOKIES_PATH.'cookie_file.txt';
+        }
+        
+        if (isset($p['CURLOPT_PROXY']) && $p['CURLOPT_PROXY'] != "") {
+            curl_setopt ($curl, CURLOPT_PROXY, $p['CURLOPT_PROXY']);
+        }
+        if (isset($p['CURLOPT_URL']) && $p['CURLOPT_URL'] != "") {
+            curl_setopt ($curl, CURLOPT_URL, $p['CURLOPT_URL']);
+        }
+        if (isset($p['CURLOPT_USERAGENT']) && $p['CURLOPT_USERAGENT'] != "") {
+            curl_setopt ($curl, CURLOPT_USERAGENT, $p['CURLOPT_USERAGENT']);
+        }
+        if (isset($p['CURLOPT_HTTPHEADER']) && $p['CURLOPT_HTTPHEADER'] != "") {
+            //此处可以改为任意假IP
+            curl_setopt ($curl, CURLOPT_HTTPHEADER, $p['CURLOPT_HTTPHEADER']);
+        }
+        $p['CURLOPT_FOLLOWLOCATION'] = isset($p['CURLOPT_FOLLOWLOCATION']) && $p['CURLOPT_HTTPHEADER'] != "" ? $p['CURLOPT_FOLLOWLOCATION'] : 1;
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $p['CURLOPT_FOLLOWLOCATION']);
+
+        $p['CURLOPT_COOKIESESSION'] = isset($p['CURLOPT_COOKIESESSION']) && $p['CURLOPT_COOKIESESSION'] != "" ? $p['CURLOPT_COOKIESESSION'] : 1;
+        curl_setopt($curl, CURLOPT_COOKIESESSION, $p['CURLOPT_COOKIESESSION']);
+
+        curl_setopt($curl, CURLOPT_COOKIEJAR, $cksfile); //读上次cookie
+        curl_setopt($curl, CURLOPT_COOKIEFILE, $cksfile); //写本次cookie
+        
+        $p['CURLOPT_TIMEOUT'] = isset($p['CURLOPT_TIMEOUT']) && $p['CURLOPT_TIMEOUT'] != "" ? $p['CURLOPT_TIMEOUT'] : 90;
+        curl_setopt($curl, CURLOPT_TIMEOUT, $p['CURLOPT_TIMEOUT']); // 设置超时限制防止死循环
+        
+        $p['CURLOPT_HEADER'] = isset($p['CURLOPT_HEADER']) && $p['CURLOPT_HEADER'] != "" ? $p['CURLOPT_HEADER'] : 0;
+        curl_setopt($curl, CURLOPT_HEADER, $p['CURLOPT_HEADER']); // 是否显示返回的Header区域内容
+        
+        $p['CURLOPT_RETURNTRANSFER'] = isset($p['CURLOPT_RETURNTRANSFER']) && $p['CURLOPT_RETURNTRANSFER'] != "" ? $p['CURLOPT_RETURNTRANSFER'] : 1;
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, $p['CURLOPT_RETURNTRANSFER']); // 获取的信息以文件流的形式返回
+        $result = curl_exec($curl); // 执行操作
+        if (curl_errno($curl)) {
+            $result = '$_$Errno:'.curl_error($curl);//捕抓异常
+        }
+        curl_close($curl);
+        return $result;
     }
     
     private function filter()
@@ -102,23 +207,14 @@ class brush_down_agent
     }
     private function set_config()
     {
-        #采集出错信息模板
+        #信息模板
         $this->aConfig['error_template']['con'] = '采集“@sName”“@sGoUrl”出错，在脚本：“@sCfile”，的第“@sCline”行附近';
         $this->aConfig['error_template']['search_replace'] = array('@sName','@sGoUrl','@sCfile','@sCline');
         
         $this->aConfig['html_charset'] = 'gbk';
         
-        $this->aConfig['have'] = &get_config('citys_info');
         $this->aConfig['tb_name_0'] = 'fuli_tmp';
-        $this->aConfig['tb_name_1'] = 'fuli';
         
-        $this->aConfig['url_0_template']['con'] = 'http://www.umei.cc/p/gaoqing/index-{@p}.htm';
-        $this->aConfig['url_0_template']['search_replace'] = array('{@p}');
-        $this->aConfig['url_0']['p_total'] = 46;
-
-        
-        
-        $this->aCommConfiger['url_url'] = 'url';
     }
     
     function __destruct()
