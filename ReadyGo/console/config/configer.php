@@ -8,18 +8,12 @@ $configer['base_url']	 = "http://.../";
 
 #名字空间
 $configer['url_space'] = "space"; # 文件1::文件2... => 文件1/文件2...
-$configer['argv_space'] = 1; # 文件1::文件2... => 文件1/文件2...
 #要调用的空间下的动作
 $configer['url_action'] = "action";
-$configer['argv_action'] = 2;
 $configer['url_suffix'] = "suffix";
-$configer['argv_suffix'] = 3;
 $configer['url_charset'] = 'charset';
-$configer['argv_charset'] = 4;
 $configer['url_which'] = 'which';
-$configer['argv_which'] = 5;
 $configer['url_p'] = 'p';
-$configer['argv_p'] = 6;
 ################### 不嫩在executor下被重写  E
 
 //mysql配置

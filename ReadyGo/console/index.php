@@ -3,22 +3,49 @@
 /**
 入口文件
 */
-define('DEFAULT_CHARSET', 'utf-8'); #默认编码
-define('DEFAULT_CHARSET_ICONV', 'UTF-8//IGNORE'); #默认编码
-//根据用户(命令行)提交的参数定义输出编码
+/**
+ * 范例：php index.php "space=cheat&action=brush_down"
+ * 
+ * @author NIGG
+ * @version $Id$
+ */
+if(isset($argv) AND count($argv) >= 2) {
+    $argv[1] = str_replace("?", '', $argv[1]);
 
-#参数输入提示
+    $params = explode('&', $argv[1]);
 
-$sOutCharset = isset($argv[4]) && $argv[4] != 1 ? $argv[4] : '';
-if ($sOutCharset == '') {
-    $sOutCharset = isset($_REQUEST['outcharset']) ? $_REQUEST['outcharset'] : DEFAULT_CHARSET;
+    $_REQUEST = array();
+    foreach($params as $p) {
+        //get the location of the '='
+        $eq_loc = strpos($p, '=');
+
+        $_REQUEST[substr($p, 0, $eq_loc)] = substr($p, $eq_loc + 1, strlen($p) - $eq_loc);
+    }
+
+    $_GET = $_REQUEST;
 }
-define('OUT_CHARSET', $sOutCharset);
+
+###########系统级需要的参数
+$ops['def_charset'] = isset($_GET['def_charset']) ? $_GET['def_charset'] : 'UTF-8';
+$ops['out_charset'] = isset($_GET['out_charset']) ? $_GET['out_charset'] : 'UTF-8';
+$ops['debug'] = isset($_GET['debug']) ? $_GET['debug'] : true;
+$ops['time_limit'] = isset($_GET['time_limit']) ? $_GET['time_limit'] : 0;
+$ops['memory_limit'] = isset($_GET['memory_limit']) ? $_GET['memory_limit'] : '-1';
+###########系统级需要的参数
+
+define('DEFAULT_CHARSET', $ops['def_charset']); #默认编码
+define('DEFAULT_CHARSET_ICONV', $ops['def_charset'].'//IGNORE'); #默认编码
+
+define('OUT_CHARSET', $ops['out_charset']);
 header('Content-Type: text/html; charset='.OUT_CHARSET);
 date_default_timezone_set("Asia/Shanghai");
-error_reporting(E_ALL);
-set_time_limit(0);
-ini_set('memory_limit', '-1');
+if ($ops['debug']) {
+    error_reporting(E_ALL);
+} else {
+    error_reporting(0);
+}
+set_time_limit($ops['time_limit']);
+ini_set('memory_limit', $ops['memory_limit']);
 
 define('LANGUAGE', 'cn'); #默认语言cn
 

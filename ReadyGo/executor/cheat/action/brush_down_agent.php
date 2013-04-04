@@ -39,6 +39,13 @@ class brush_down_agent
 //         $aArgv = $GLOBALS['argv'];
 //         $this->aParameter['start0'] = isset($aArgv[5]) ? $aArgv[5] : '1';
 //         $this->aParameter['end'] = isset($aArgv[6]) ? $aArgv[6] : '97191';
+        ##################
+        
+        ##################
+        
+        dump($_REQUEST);
+        dump($_GET);
+        die;
         
         $i = 0;
         do {
