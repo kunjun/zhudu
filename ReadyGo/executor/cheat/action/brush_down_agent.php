@@ -4,7 +4,7 @@
 Version: 1
  Effect: 
    Date: 
-  Notes: ?space=cheat&action=brush_down
+  Notes: ?space=cheat&action=brush_down&ini=ini&num=10
 ********************************************************/
 class brush_down_agent
 {
@@ -75,17 +75,46 @@ class brush_down_agent
         
         $this->user_agents = &get_config("user_agents");
         
+        $t_time = 18*3600;
+        $run_num = $this->aParameter['num'];
         $i = 0;
         do {
-            sleep(rand(2,22));
+            rand_sleep($run_num);
             show_msg($i.".....".TNL);
+            if ($this->is_true_time() && $run_num != $this->aParameter['num']) {
+                $run_num = $this->aParameter['num']/3;
+                show_msg("run_num=".$run_num.".....".TNL);
+            }
             $this->run();
 //             die;
             $i++;
-        } while($i < $this->aParameter['num']);
+        } while($i < $run_num);
         
         show_msg("报告刷了{$i}次<br />\r\n");
         die;
+    }
+    
+    function rand_sleep($run_num)
+    {
+        $t_time = 3600-2*$run_num-2;
+        $max = 3600/$run_num;
+        $min = (3600/$run_num)/2;
+        sleep(rand($min,$max));
+    }
+    
+    function is_true_time() {
+        $r = false;
+        $y=date("Y",time()); 
+        $m=date("m",time()); 
+        $d=date("d",time()); 
+        $start_time = mktime(6, 0, 0, $m, $d ,$y); 
+        $end_time = mktime(23, 59, 59, $m, $d ,$y);
+        $time = time(); 
+        if($time >= $start_time && $time <= $end_time) 
+        { 
+            $r = true;
+        }
+        return $r;
     }
     
     function run()
@@ -127,7 +156,7 @@ class brush_down_agent
                 $curl_p['CURLOPT_URL'] = '';
             }
             if ($curl_p['CURLOPT_URL'] != '') {
-                $curl_p['CURLOPT_TIMEOUT'] = $this->aParameter['dtime'] ? $this->aParameter['dtime'] : rand(4,12);
+                $curl_p['CURLOPT_TIMEOUT'] = $this->aParameter['dtime'] ? $this->aParameter['dtime'] : rand(3,12);
                 $result = $this->net_engine($curl_p);
                 if (preg_match("/^\\\$_\\\$Errno\:(.*)/", $result['msg'], $arr)) {
                     $error_msg = $arr[1];
