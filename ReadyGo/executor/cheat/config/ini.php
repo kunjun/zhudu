@@ -1,16 +1,22 @@
 <?php  if ( ! defined('ROOT_PATH')) exit('非法访问！！！');
 
-// $ini['iurl'] = 'http://www.nduoa.com/apk/detail/515534';
-// $ini['durl'] = 'http://www.nduoa.com/apk/download/515534?from=ndoo';
-// $ini['title'] = '合金弹头叉版';
-// $ini['num'] = 60;
-// $ini['dtime'] = 2;
+//n多情况
+$tmp = array();
+$tmp['iurl'] = 'http://www.nduoa.com/apk/detail/515534';
+$tmp['durl'] = 'http://www.nduoa.com/apk/download/515534?from=ndoo';
+$tmp['title'] = '合金弹头叉版';
+$tmp['num_flag'] = 'normal';
+$tmp['dtime'] = 2;
+$ini['nduo'] = $tmp;
 
-$ini['iurl'] = 'http://as.baidu.com/a/item?docid=3385673&pre=web_am_se';
-$ini['durl'] = 'http://gdown.baidu.com/data/wisegame/c639f758ff0b53bf/longzhudamaoxian_20130614.apk';
-$ini['title'] = '龙珠大冒险';
-$ini['num_flag'] = 'normal';
-$ini['dtime'] = 2;
+//百度情况
+$tmp = array();
+$tmp['iurl'] = 'http://as.baidu.com/a/item?docid=3385673&pre=web_am_se';
+$tmp['durl'] = 'http://gdown.baidu.com/data/wisegame/c639f758ff0b53bf/longzhudamaoxian_20130614.apk';
+$tmp['title'] = '龙珠大冒险';
+$tmp['num_flag'] = 'normal';
+$tmp['dtime'] = 2;
+$ini['baidu'] = $tmp;
 
 $ini['hs']['normal'] = array();
 $ini['hs']['normal'][0] = 50;

@@ -5,8 +5,8 @@ Version: 1
  Effect: 
    Date: 
   Notes: ?space=cheat&action=brush_down&ini=ini&num=10
-  测试=>php index.php "?space=cheat&action=brush_down&ini=ini&test_num=5"
-  正式=>php index.php "?space=cheat&action=brush_down&ini=ini"
+  测试=>php index.php "?space=cheat&action=brush_down&ini=ini&ini_flag=baidu&test_num=2"
+  正式=>php index.php "?space=cheat&action=brush_down&ini=ini&ini_flag=baidu"
 ********************************************************/
 class brush_down_agent
 {
@@ -41,6 +41,7 @@ class brush_down_agent
         $this->aParameter['num_flag'] = isset($this->aParameter['num_flag']) ? $this->aParameter['num_flag'] : 'normal';
         //ini配置脚本名，如ini=>config/ini.php
         $this->aParameter['ini'] = isset($this->aParameter['ini']) ? $this->aParameter['ini'] : '';
+        $this->aParameter['ini_flag'] = isset($this->aParameter['ini_flag']) ? $this->aParameter['ini_flag'] : 'normal';
         //app详细页
         $this->aParameter['iurl'] = isset($this->aParameter['iurl']) ? urldecode($this->aParameter['iurl']) : '';
         //下载链接
@@ -48,29 +49,43 @@ class brush_down_agent
         //页面下载链接的元素选择
         $this->aParameter['durl_wz'] = isset($this->aParameter['durl_wz']) ? $this->aParameter['durl_wz'] : '';
         //title包含的某一文字，用于判断是否打开页面成功
-        $this->aParameter['title'] = isset($this->aParameter['title']) ? $this->aParameter['title'] : '';
+        $this->aParameter['title'] = isset($this->aParameter['title']) ? urldecode($this->aParameter['title']) : '';
         //下载限定时长
         $this->aParameter['dtime'] = isset($this->aParameter['dtime']) ? $this->aParameter['dtime'] : '';
         ####################################################
         
         if ($this->aParameter['ini']) {
-            $this->ini = &get_config($this->aParameter['ini']);
-            $this->aParameter['iurl'] = isset($this->ini['iurl']) ? urldecode($this->ini['iurl']) : '';
-            $this->aParameter['durl'] = isset($this->ini['durl']) ? urldecode($this->ini['durl']) : '';
-            $this->aParameter['durl_wz'] = isset($this->ini['durl_wz']) ? $this->ini['durl_wz'] : '';
-            $this->aParameter['title'] = isset($this->ini['title']) ? $this->ini['title'] : '';
-            $this->aParameter['num'] = isset($this->ini['num']) ? $this->ini['num'] : $this->aParameter['num'];
-            $this->aParameter['num_flag'] = isset($this->ini['num_flag']) ? $this->ini['num_flag'] : $this->aParameter['num_flag'];
-            $t_h = date("G", time());
-            if ($this->aParameter['num'] <= 0) {
-                $this->aParameter['num'] = isset($this->ini['hs'][$this->aParameter['num_flag']][$t_h]) ? $this->ini['hs'][$this->aParameter['num_flag']][$t_h] : 0;
+            $this->all_ini = &get_config($this->aParameter['ini']);
+            if (!isset($this->all_ini[$this->aParameter['ini_flag']])) {
+                show_error("ini error!");
             }
-            
-            $this->aParameter['dtime'] = isset($this->ini['dtime']) ? $this->ini['dtime'] : $this->aParameter['dtime'];
+            $this->ini = $this->all_ini[$this->aParameter['ini_flag']];
+            if ($this->aParameter['iurl'] == '') {
+                $this->aParameter['iurl'] = isset($this->ini['iurl']) ? urldecode($this->ini['iurl']) : '';
+            }
+            if ($this->aParameter['durl'] == '') {
+                $this->aParameter['durl'] = isset($this->ini['durl']) ? urldecode($this->ini['durl']) : '';
+            }
+            if ($this->aParameter['durl_wz'] == '') {
+                $this->aParameter['durl_wz'] = isset($this->ini['durl_wz']) ? $this->ini['durl_wz'] : '';
+            }
+            if ($this->aParameter['title'] == '') {
+                $this->aParameter['title'] = isset($this->ini['title']) ? $this->ini['title'] : '';
+            }
+            if ($this->aParameter['dtime'] == '') {
+                $this->aParameter['dtime'] = isset($this->ini['dtime']) ? $this->ini['dtime'] : '';
+            }
+            if ($this->aParameter['num'] <= 0) {
+                $this->aParameter['num'] = isset($this->ini['num']) ? $this->ini['num'] : $this->aParameter['num'];
+                $this->aParameter['num_flag'] = isset($this->ini['num_flag']) ? $this->ini['num_flag'] : $this->aParameter['num_flag'];
+                $t_h = date("G", time());
+                if ($this->aParameter['num'] <= 0) {
+                    $this->aParameter['num'] = isset($this->all_ini['hs'][$this->aParameter['num_flag']][$t_h]) ? $this->all_ini['hs'][$this->aParameter['num_flag']][$t_h] : 0;
+                }
+            }
         }
-        
         if ($this->aParameter['num'] <= 0) {
-            show_error("num not less than 0");
+            show_error("num can not be less than 0");
         }
         
 //         $url = 'http://market.hiapk.com/service/api2.php?qt=1014&aid=1193060&name=江西一枝花&pi=2&ps=20';
@@ -111,16 +126,28 @@ class brush_down_agent
             show_error("num需要是一个数字");
         }
         
-        dump($this->aParameter);
+        if ($this->aParameter['dtime'] == '' || $this->aParameter['title'] == '') {
+            show_error("dtime|title can not be empty");
+        }
+        
+//         dump($this->aParameter);
 //         die;
         
         $this->user_agents = &get_config("user_agents");
         
+        //一天总刷数
+        $c = 0;
+        if (isset($this->all_ini['hs'][$this->aParameter['num_flag']]) && !empty($this->all_ini['hs'][$this->aParameter['num_flag']])) {
+            foreach ($this->all_ini['hs'][$this->aParameter['num_flag']] as $v) {
+                $c += $v;
+            }
+        }
         $run_num = $this->aParameter['num'];
-        $i = 0;
+        $i = 1;
         do {
             $this->rand_sleep($run_num);
-            show_msg($i.".....".TNL);
+            //当前刷数/当前小时刷数/一天总刷数
+            show_msg($i."/".$run_num."/".$c.".....".TNL);
 //             if ($this->is_true_time() && $run_num != $this->aParameter['num']) {
 //                 $run_num = $this->aParameter['num']/3;
 //                 show_msg("run_num=".$run_num.".....".TNL);

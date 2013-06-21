@@ -24,15 +24,27 @@ if (isset($argv)) {
 
 if(isset($argv) AND count($argv) >= 2) {
     $argv[1] = str_replace("?", '', $argv[1]);
+    if ($argv[1] === mb_convert_encoding(mb_convert_encoding($argv[1], "GB2312", "UTF-8"), "UTF-8", "GB2312")) {
 
-    $params = explode('&', $argv[1]);
+    } else {
+        //如果是gb2312 的就转换为utf8的
+        $argv[1] = mb_convert_encoding($argv[1], 'UTF-8', 'GB2312');
+    }
+
+    if (strpos($argv[1], '&') !== false) {
+        $params = explode('&', $argv[1]);
+    } else {
+        $params = array($argv[1]);
+    }
 
     $_REQUEST = array();
     foreach($params as $p) {
-        //get the location of the '='
-        $eq_loc = strpos($p, '=');
-
-        $_REQUEST[substr($p, 0, $eq_loc)] = substr($p, $eq_loc + 1, strlen($p) - $eq_loc);
+        if (strpos($p, '=') !== false) {
+            $arr = explode('=', $p);
+            $_REQUEST[$arr[0]] = $arr[1];
+        } else {
+            $_REQUEST[$p] = '';
+        }
     }
 
     $_GET = $_REQUEST;
