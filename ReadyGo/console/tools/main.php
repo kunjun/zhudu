@@ -29,6 +29,7 @@ function meclient($url='',$data='',$header=array())
     // }
     $http_user_agent = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1;  .NET CLR 2.0.50727; .NET CLR 3.0.04506.648; .NET CLR 3.5.21022; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729; InfoPath.2; {@d})";
     $http_user_agent = str_replace('{@d}', 'http://www.baidu.com', $http_user_agent);
+    $http_user_agent = 'Apache-HttpClient/UNAVAILABLE (java 1.4)';
     // echo $http_user_agent."\r\n<br />";
         curl_setopt($curl, CURLOPT_USERAGENT, $http_user_agent); // 模拟用户使用的浏览器
 //     curl_setopt($curl, CURLOPT_USERAGENT, $user_agent);//HTTP请求User-Agent:头

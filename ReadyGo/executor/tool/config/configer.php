@@ -14,4 +14,4 @@ $configer['mysql_config']['charset'] = 'utf8';
 
 //自动加载的工具脚本
 #$configer['tools'] = array(array('脚本名','脚本所在空间',是否是工具类)); 注脚本名一定要
-$configer['tools'] = array(array('main','',false),array('simple_html_dom','',false),array('log_email','',true),array('mysqldb','',true,$configer['mysql_config']));
+$configer['tools'] = array(array('main','',false),array('simple_html_dom','',false),array('ThumbHandler','',false),array('log_email','',true),array('mysqldb','',true,$configer['mysql_config']));

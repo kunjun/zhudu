@@ -5,6 +5,8 @@ Version: 1
  Effect: 
    Date: 
   Notes: ?space=cheat&action=brush_down&ini=ini&num=10
+  测试=>php index.php "?space=cheat&action=brush_down&ini=ini&test_num=5"
+  正式=>php index.php "?space=cheat&action=brush_down&ini=ini"
 ********************************************************/
 class brush_down_agent
 {
@@ -32,7 +34,12 @@ class brush_down_agent
     function execute()
     {
         ####################################################
-        $this->aParameter['num'] = isset($this->aParameter['num']) ? $this->aParameter['num'] : 10;
+        //测试的次数
+        $this->aParameter['test_num'] = isset($this->aParameter['test_num']) ? $this->aParameter['test_num'] : 0;
+        $this->aParameter['num'] = isset($this->aParameter['num']) ? $this->aParameter['num'] : 0;
+        //下载数标记，见config/ini.php
+        $this->aParameter['num_flag'] = isset($this->aParameter['num_flag']) ? $this->aParameter['num_flag'] : 'normal';
+        //ini配置脚本名，如ini=>config/ini.php
         $this->aParameter['ini'] = isset($this->aParameter['ini']) ? $this->aParameter['ini'] : '';
         //app详细页
         $this->aParameter['iurl'] = isset($this->aParameter['iurl']) ? urldecode($this->aParameter['iurl']) : '';
@@ -53,8 +60,39 @@ class brush_down_agent
             $this->aParameter['durl_wz'] = isset($this->ini['durl_wz']) ? $this->ini['durl_wz'] : '';
             $this->aParameter['title'] = isset($this->ini['title']) ? $this->ini['title'] : '';
             $this->aParameter['num'] = isset($this->ini['num']) ? $this->ini['num'] : $this->aParameter['num'];
+            $this->aParameter['num_flag'] = isset($this->ini['num_flag']) ? $this->ini['num_flag'] : $this->aParameter['num_flag'];
+            $t_h = date("G", time());
+            if ($this->aParameter['num'] <= 0) {
+                $this->aParameter['num'] = isset($this->ini['hs'][$this->aParameter['num_flag']][$t_h]) ? $this->ini['hs'][$this->aParameter['num_flag']][$t_h] : 0;
+            }
+            
             $this->aParameter['dtime'] = isset($this->ini['dtime']) ? $this->ini['dtime'] : $this->aParameter['dtime'];
         }
+        
+        if ($this->aParameter['num'] <= 0) {
+            show_error("num not less than 0");
+        }
+        
+//         $url = 'http://market.hiapk.com/service/api2.php?qt=1014&aid=1193060&name=江西一枝花&pi=2&ps=20';
+//         $header = array();
+//         $header['peer'] = '1';
+//         $header['clientmarket'] = '1';
+//         $header['sessionid'] = '';
+//         $header['ts'] = '8';
+//         $header['Accept-Encoding'] = 'gzip';
+//         $header['pv'] = '2.2';
+//         $header['device'] = '874686011553196';
+//         $header['mac'] = '87:30:8A:79:D8:07';
+//         $header['resolution'] = '640x960';
+//         $header['density'] = '320';
+//         $header['sdkversion'] = '15';
+//         $header['vender'] = '17001';
+//         $header['authorizations'] = '0';
+//         $header['applang'] = '3';
+//         $header['abi'] = 'armeabi-v7a|armeabi';
+//         $str = meclient($url, '', $header);
+//         dump($str);
+//         die;
         
 //         dump($this->aParameter);
 //         die;
@@ -73,24 +111,30 @@ class brush_down_agent
             show_error("num需要是一个数字");
         }
         
+        dump($this->aParameter);
+//         die;
+        
         $this->user_agents = &get_config("user_agents");
         
-        $t_time = 18*3600;
         $run_num = $this->aParameter['num'];
         $i = 0;
         do {
-            rand_sleep($run_num);
+            $this->rand_sleep($run_num);
             show_msg($i.".....".TNL);
-            if ($this->is_true_time() && $run_num != $this->aParameter['num']) {
-                $run_num = $this->aParameter['num']/3;
-                show_msg("run_num=".$run_num.".....".TNL);
-            }
+//             if ($this->is_true_time() && $run_num != $this->aParameter['num']) {
+//                 $run_num = $this->aParameter['num']/3;
+//                 show_msg("run_num=".$run_num.".....".TNL);
+//             }
             $this->run();
+            if ($this->aParameter['test_num'] > 0 && $this->aParameter['test_num'] <= $i) {
+                show_msg("测试刷了{$this->aParameter['test_num']}次".TNL);
+                break;
+            }
 //             die;
             $i++;
         } while($i < $run_num);
         
-        show_msg("报告刷了{$i}次<br />\r\n");
+        show_msg("报告刷了{$i}次".TNL);
         die;
     }
     
@@ -99,10 +143,13 @@ class brush_down_agent
         $t_time = 3600-2*$run_num-2;
         $max = 3600/$run_num;
         $min = (3600/$run_num)/2;
-        sleep(rand($min,$max));
+        $t = rand($min,$max);
+        show_msg("休息{$t}s.....".TNL);
+        sleep($t);
     }
     
     function is_true_time() {
+        return true;
         $r = false;
         $y=date("Y",time()); 
         $m=date("m",time()); 
@@ -254,8 +301,6 @@ class brush_down_agent
         $this->aConfig['error_template']['search_replace'] = array('@sName','@sGoUrl','@sCfile','@sCline');
         
         $this->aConfig['html_charset'] = 'gbk';
-        
-        $this->aConfig['tb_name_0'] = 'fuli_tmp';
         
     }
     
